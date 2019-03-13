@@ -7,6 +7,7 @@ sound
 checker.bat
 resource/*
 addons/*
+*__pycache__
 
 # unignore our plugin
 !addons/source-python/

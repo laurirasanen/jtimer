@@ -1,5 +1,6 @@
 from .state import State, Run_State, Timer_Mode
 from ..chat.messages import timer_enabled_message, timer_disabled_message
+from ..helpers.converts import steamid_to_player, steamid_to_source_player
 
 players = []
 
@@ -24,12 +25,8 @@ def remove_player(steamid):
 def update_timers():
     """update all timers of active players"""
     for p in players:
-        if p.state.timer_mode != Timer_Mode.NONE:
-            if (p.state.map_state == Run_State.RUN
-              or p.state.course_state == Run_State.RUN
-              or p.state.bonus_state == Run_State.RUN):
-                # do some magic
-                pass
+        source_player = steamid_to_source_player(p.steamid)
+        p.update(source_player.origin, (source_player.mins, source_player.maxs))
 
 def toggle_timer(index, steamid):
     """toggle player timer on and off"""

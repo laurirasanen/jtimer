@@ -3,7 +3,7 @@ import math
 from mathlib import Vector
 
 class Zone():
-    def __init__(self, zone_id, center=mathlib.NULL_VECTOR, extents=mathlib.NULL_VECTOR):
+    def __init__(self, center=mathlib.NULL_VECTOR, extents=mathlib.NULL_VECTOR):
         self.center = center
         # half-widths
         self.extents = extents
