@@ -26,7 +26,7 @@ def update_timers():
     """update all timers of active players"""
     for p in players:
         source_player = steamid_to_source_player(p.steamid)
-        p.update(source_player.origin, (source_player.mins, source_player.maxs))
+        p.update(source_player.origin, (source_player.mins, source_player.maxs), source_player.velocity)
 
 def toggle_timer(index, steamid):
     """toggle player timer on and off"""

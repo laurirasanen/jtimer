@@ -1,5 +1,6 @@
 from enum import Enum
 import mathlib
+from engine.server import Server
 from ..map.map import Map
 from ..map.course import Course
 from ..map.bonus import Bonus
@@ -10,8 +11,14 @@ class State():
         self.origin = mathlib.NULL_VECTOR
         self.center = mathlib.NULL_VECTOR
         self.bounds = (mathlib.NULL_VECTOR, mathlib.NULL_VECTOR)
+        self.extents = mathlib.NULL_VECTOR
+        self.velocity = mathlib.NULL_VECTOR
+
         self.previous_origin = self.origin
         self.previous_bounds = self.bounds
+        self.previous_center = self.center
+        self.previous_extents = self.extents
+        self.previous_velocity = self.velocity
 
         self.timer_mode = Timer_Mode.NONE
         self.map_state = Run_State.NONE
@@ -39,7 +46,7 @@ class State():
             return True
         return False
 
-    def update(self, origin, bounds):
+    def update(self, origin, bounds, velocity):
         # are we running?
         if self.running:
             if type(origin) != type(mathlib.Vector):
@@ -54,9 +61,21 @@ class State():
             self.origin = origin
             self.bounds = bounds
 
-            yOffset = self.bounds[0][1] + self.bounds[1][1]
+            self.previous_center = self.center
+            yOffset = (self.bounds[0][2] + self.bounds[1][2])/2
             self.center = self.origin
-            self.center[1] += yOffset
+            self.center[2] += yOffset
+
+            self.previous_extents = self.extents
+            self.extents[0] = self.extents[1] = self.bounds[1][0]
+            self.extents[2] = yOffset
+
+            self.previous_velocity = self.velocity
+            self.velocity = velocity
+
+            # first update
+            if self.previous_origin == mathlib.NULL_VECTOR:
+                return
 
             # TODO:
             # check if we've left or entered a zone.
@@ -66,7 +85,7 @@ class State():
             """pseudo
             for s in segments:
                 for z in s.zones:
-                    if(z.is_overlapping(self.center, self.center)):
+                    if(z.is_overlapping(self.center, self.extents)):
                         # check if we were already overlapping before
                         same = False
                         for o in self.overlaps:
@@ -74,9 +93,10 @@ class State():
                                 same = True
                         if same:
                             continue
-
+                        
                         # just entered
-                        start_segment(s)
+                        subtick = z.time_to_zone_edge(self.previous_center, self.previous_extents, self.previous_velocity)
+                        start_segment(s, Server.tick - 1 + subtick)
 
                     else:
                         # check if we were overlapping before
@@ -89,7 +109,8 @@ class State():
                             continue
 
                         # just left
-                        end_segment(s)
+                        subtick = z.time_to_zone_edge(self.previous_center, self.previous_extents, self.previous_velocity)
+                        end_segment(s, Server.tick - 1 + subtick)
 
                         # remove from overlaps
                         self.overlaps.pop(index)
@@ -105,7 +126,8 @@ class State():
                         continue
 
                     # just entered
-                    enter_checkpoint(cp)             
+                    subtick = cp.time_to_zone_edge(self.previous_center, self.previous_extents, self.previous_velocity)
+                    enter_checkpoint(cp, Server.tick - 1 + subtick)             
 
             """
         else:
