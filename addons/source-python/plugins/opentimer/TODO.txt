@@ -1,15 +1,6 @@
 0.1.0:
 
-- finish pseudocode in state.update() in state.py:85
-
-- state.update should call segment.on_run_start / on_run_end / on_run_checkpoint
-	instead of directly calling start_segment / end_segment / enter_checkpoint
-	
-- segment.on_run_start, etc. should then call the respective state functions,
-	this way we can add other code to segment functions,
-	rather than polluting state class (updating hud, print to chat, etc.)
-	
-- chat messages for entering cps, finishing map/course/bonus
+- chat messages for entering cps, finishing map/course/bonus, etc.
 
 - hud timer
 	at segment start:
@@ -56,8 +47,6 @@
 	> ordering of checkpoints might be confusing this way however, on maps where
 	> for example course 2 is just the map backwards.
 	> add checkpoint ids to map/course/bonus data in order of zones instead?
-	
-- in-game zone editing tools and other menus are nice but not needed for alpha
 
 
 0.2.0:

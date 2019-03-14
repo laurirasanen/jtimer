@@ -4,4 +4,4 @@ class Player():
     def __init__(self, steamid, name):
         self.steamid = steamid
         self.name = name
-        self.state = State()
+        self.state = State(this)

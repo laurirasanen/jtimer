@@ -1,8 +1,10 @@
-from .state import State, Run_State, Timer_Mode
+from ..players.state import State, Run_State, Timer_Mode
 from ..chat.messages import timer_enabled_message, timer_disabled_message
 from ..helpers.converts import steamid_to_player, steamid_to_source_player
+from ..map.map import Map
 
 players = []
+current_map = None
 
 def add_player(player):
     """add player reference to timer,
