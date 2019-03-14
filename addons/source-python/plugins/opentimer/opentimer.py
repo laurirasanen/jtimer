@@ -9,11 +9,15 @@ from commands import CommandReturn
 from players.helpers import playerinfo_from_index
 from players import PlayerInfo
 from filters.players import PlayerIter
+from events import Event
 
 # Custom imports
 from .core.timer import timer
 from .core.chat import messages
 from .core.players.player import Player
+from .core.players.state import Player_Class
+from .core.players.state import State
+from .core.helpers.converts import steamid_to_player
 
 # =============
 # >> GLOBALS
@@ -69,3 +73,15 @@ def on_timer(command):
         timer.toggle_timer(command.index, playerinfo.steamid)
 
     return CommandReturn.BLOCK
+
+@Event('player_changeclass')
+def on_player_changeclass(game_event):
+    player = steamid_to_player(game_event['steamid'])
+    class_index = game_event['class']
+    player.state.player_class = Player_Class(class_index)
+    player.state.reset()
+
+@Event('player_death')
+def on_player_death(game_event):
+    player = steamid_to_player(game_event['steamid'])
+    player.state.reset()

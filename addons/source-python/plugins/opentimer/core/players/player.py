@@ -1,4 +1,4 @@
-from ..timer.state import State
+from .state import State
 
 class Player():
     def __init__(self, steamid, name):

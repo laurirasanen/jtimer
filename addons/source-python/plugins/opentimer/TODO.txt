@@ -1,7 +1,5 @@
 0.1.0:
 
-- move core/timer/state.py to core/player/state.py
-
 - finish pseudocode in state.update() in state.py:85
 
 - state.update should call segment.on_run_start / on_run_end / on_run_checkpoint

@@ -1,6 +1,6 @@
 from enum import Enum
 import mathlib
-from engine.server import Server
+from engines.server import Server
 from ..map.map import Map
 from ..map.course import Course
 from ..map.bonus import Bonus
@@ -8,6 +8,7 @@ from ..map.checkpoint import Checkpoint
 
 class State():
     def __init__(self):
+        self.player_class = Player_Class.NONE
         self.origin = mathlib.NULL_VECTOR
         self.center = mathlib.NULL_VECTOR
         self.bounds = (mathlib.NULL_VECTOR, mathlib.NULL_VECTOR)
@@ -312,3 +313,15 @@ class Timer_Mode(Enum):
     MAP = 1
     COURSE = 2
     BONUS = 3
+
+class Player_Class(Enum):
+    NONE = 0,
+    SCOUT = 1,
+    SOLDIER = 2,
+    PYRO = 3,
+    DEMOMAN = 4,
+    HEAVY = 5,
+    ENGINEER = 6,
+    MEDIC = 7,
+    SNIPER = 8,
+    SPY = 9
