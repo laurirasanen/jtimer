@@ -70,3 +70,24 @@ class Zone():
                 corner[i] = other_center[i] - other_extents[i]
 
         return corner
+
+    def move_side(self, axis, end, direction, units):
+        """move one of the 6 sides of the zone bounding box inwards or outwards.
+        axis = the axis to move on {0, 1, 2}
+        end = corner of the bounds to move {0, 1}
+        direction = direction of movement on the axis {int}
+        units = amount of units to move {int}"""
+        if end not in (0, 1):
+            end = 0
+
+        if axis not in (0,1,2):
+            axis = 0
+
+        if direction not in (-1, 1):
+            direction = -1
+
+        units = int(round(units))
+
+        self.bounds[end][axis] += direction * units
+        self.center = self.bounds[0] + self.bounds[1] / 2
+        self.extents = self.bounds[1] - self.center
