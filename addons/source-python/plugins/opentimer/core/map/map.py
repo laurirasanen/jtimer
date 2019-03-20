@@ -24,7 +24,11 @@ class Map(Segment):
           and player.state.timer_mode == Timer_Mode.MAP):
 
             # start run
-            subtick = self.start_zone.time_to_zone_edge(player.state.previous_center, player.state.previous_extents, player.state.previous_velocity)
+            subtick = self.start_zone.time_to_zone_edge(player.state.previous_center, 
+                player.state.previous_extents, 
+                player.state.previous_velocity,
+                (player.state.origin - player.state.previous_origin).length
+            )
             print(f'left start, subtick: {subtick}')
             start_time = server.tick - 1 + subtick
 
@@ -37,7 +41,11 @@ class Map(Segment):
           and player.state.timer_mode == Timer_Mode.MAP):
 
             # finish run
-            subtick = self.end_zone.time_to_zone_edge(player.state.previous_center, player.state.previous_extents, player.state.previous_velocity)
+            subtick = self.start_zone.time_to_zone_edge(player.state.previous_center, 
+                player.state.previous_extents, 
+                player.state.previous_velocity,
+                (player.state.origin - player.state.previous_origin).length
+            )
             print(f'entered end, subtick: {subtick}')
             end_time = server.tick - 1 + subtick
 
@@ -52,6 +60,10 @@ class Map(Segment):
                     return
             
             # entered checkpoint
-            subtick = checkpoint.time_to_zone_edge(player.state.previous_center, player.state.previous_extents, player.state.previous_velocity)
+            subtick = self.start_zone.time_to_zone_edge(player.state.previous_center, 
+                player.state.previous_extents, 
+                player.state.previous_velocity,
+                (player.state.origin - player.state.previous_origin).length
+            )
             enter_time = server.tick - 1 + subtick
             player.state.checkpoints.append(checkpoint, enter_time)

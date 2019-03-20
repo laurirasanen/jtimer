@@ -44,7 +44,11 @@ class Course(Segment):
           and player.state.course_index == self.index):
 
             # start run
-            subtick = self.start_zone.time_to_zone_edge(player.state.previous_center, player.state.previous_extents, player.state.previous_velocity)
+            subtick = self.start_zone.time_to_zone_edge(player.state.previous_center, 
+                player.state.previous_extents, 
+                player.state.previous_velocity,
+                (player.state.origin - player.state.previous_origin).length
+            )
             start_time = server.tick - 1 + subtick
 
             player.state.course_state = Run_State.RUN
@@ -60,7 +64,11 @@ class Course(Segment):
           and player.state.course_index == self.index):
 
             # finish run
-            subtick = self.end_zone.time_to_zone_edge(player.state.previous_center, player.state.previous_extents, player.state.previous_velocity)
+            subtick = self.start_zone.time_to_zone_edge(player.state.previous_center, 
+                player.state.previous_extents, 
+                player.state.previous_velocity,
+                (player.state.origin - player.state.previous_origin).length
+            )
             end_time = server.tick - 1 + subtick
 
             for c in player.state.courses:
@@ -79,7 +87,11 @@ class Course(Segment):
                     return
             
             # enter checkpoint
-            subtick = checkpoint.time_to_zone_edge(player.state.previous_center, player.state.previous_extents, player.state.previous_velocity)
+            subtick = self.start_zone.time_to_zone_edge(player.state.previous_center, 
+                player.state.previous_extents, 
+                player.state.previous_velocity,
+                (player.state.origin - player.state.previous_origin).length
+            )
             enter_time = server.tick - 1 + subtick 
             player.state.checkpoints.append(checkpoint, enter_time)
 

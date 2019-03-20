@@ -25,8 +25,16 @@ class Zone():
      
         return x and y and z
 
-    def time_to_zone_edge(self, other_center, other_extents, velocity):
+    def time_to_zone_edge(self, other_center, other_extents, velocity, position_delta):
         """sub-tick time until player bounding box will leave the zone"""
+
+        # max distance travelled in a tick ( sqrt(sqrt(3500^2 + 3500^2) + 3500^2) )
+        dist = 91
+
+        if position_delta > dist:
+            # player moved more than max velocity, assume teleported
+            return 1.0
+
         # https://gamedev.stackexchange.com/a/18459
 
         # get closest corner to zone
@@ -59,9 +67,6 @@ class Zone():
         # tmin is negative if we're leaving a zone, use abs
         tmin = abs(max(max(min(vt0[0], vt1[0]), min(vt0[1], vt1[1])), min(vt0[2], vt1[2])))
         tmax = min(min(max(vt0[0], vt1[0]), max(vt0[1], vt1[1])), max(vt0[2], vt1[2]))
-
-        # max distance travelled in a tick ( sqrt(sqrt(3500^2 + 3500^2) + 3500^2) )
-        dist = 91
 
         # if tmax < 0, the whole AABB is behind us,
         # meaning we've already entered/left the zone.
