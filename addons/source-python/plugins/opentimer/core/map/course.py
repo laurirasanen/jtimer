@@ -1,4 +1,4 @@
-from engines.server import Server
+from engines.server import server
 
 from .segment import Segment
 from ..players.state import Run_State
@@ -14,21 +14,27 @@ class Course(Segment):
             if player.state.course_state != Run_State.START:
                 # reset state when entering start again in course mode
                 player.state.reset()
+                player.state.course_state = Run_State.START
 
         elif player.state.timer_mode == Timer_Mode.MAP:
-            if (player.state.course_index != self.index
-              and player.state.course_index != self.index - 1):
-                # entered wrong course
-                # TODO: print message to player
-                player.state.reset()
-
-            elif player.state.course_index == self.index - 1:
+            if player.state.course_index == self.index - 1:
                 # coming from previous course
                 player.state.course_index = self.index
                 player.state.course_state = Run_State.START
 
                 # TODO:
                 # course enter time checkpoint
+
+            elif player.state.course_index < self.index - 1:
+                # entered earlier course
+                pass
+
+            elif player.state.course_index > self.index - 1:
+                # entered in wrong order
+                # TODO:
+                # print message to player
+                player.state.reset()
+                player.timer_mode = Timer_Mode.NONE            
 
 
     def on_leave_start(self, player):
@@ -39,7 +45,7 @@ class Course(Segment):
 
             # start run
             subtick = self.start_zone.time_to_zone_edge(player.state.previous_center, player.state.previous_extents, player.state.previous_velocity)
-            start_time = Server.tick - 1 + subtick
+            start_time = server.tick - 1 + subtick
 
             player.state.course_state = Run_State.RUN
             player.state.courses.append((self, start_time))
@@ -55,7 +61,7 @@ class Course(Segment):
 
             # finish run
             subtick = self.end_zone.time_to_zone_edge(player.state.previous_center, player.state.previous_extents, player.state.previous_velocity)
-            end_time = Server.tick - 1 + subtick
+            end_time = server.tick - 1 + subtick
 
             for c in player.state.courses:
                 if c[0] == self:
@@ -74,7 +80,7 @@ class Course(Segment):
             
             # enter checkpoint
             subtick = checkpoint.time_to_zone_edge(player.state.previous_center, player.state.previous_extents, player.state.previous_velocity)
-            enter_time = Server.tick - 1 + subtick 
+            enter_time = server.tick - 1 + subtick 
             player.state.checkpoints.append(checkpoint, enter_time)
 
             # TODO:

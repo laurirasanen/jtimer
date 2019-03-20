@@ -1,5 +1,3 @@
-from engines.server import Server
-
 from ..zones.zone import Zone
 
 class Segment():

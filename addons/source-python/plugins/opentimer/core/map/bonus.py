@@ -1,4 +1,4 @@
-from engines.server import Server
+from engines.server import server
 
 from .segment import Segment
 from ..players.state import Run_State
@@ -27,7 +27,7 @@ class Bonus(Segment):
 
             # start run
             subtick = self.start_zone.time_to_zone_edge(player.state.previous_center, player.state.previous_extents, player.state.previous_velocity)
-            start_time = Server.tick - 1 + subtick
+            start_time = server.tick - 1 + subtick
 
             player.state.bonus_state = Run_State.RUN
             player.state.bonus = (self, start_time)
@@ -39,7 +39,7 @@ class Bonus(Segment):
 
             # finish run
             subtick = self.end_zone.time_to_zone_edge(player.state.previous_center, player.state.previous_extents, player.state.previous_velocity)
-            end_time = Server.tick - 1 + subtick
+            end_time = server.tick - 1 + subtick
 
             if player.state.bonus[0] == self:
                 player.state.bonus[2] = end_time
@@ -56,7 +56,7 @@ class Bonus(Segment):
             
             # enter checkpoint
             subtick = checkpoint.time_to_zone_edge(player.state.previous_center, player.state.previous_extents, player.state.previous_velocity)
-            enter_time = Server.tick - 1 + subtick 
+            enter_time = server.tick - 1 + subtick 
             player.state.checkpoints.append(checkpoint, enter_time)
 
             # TODO:

@@ -1,4 +1,4 @@
-from engines.server import Server
+from engines.server import server
 
 from .segment import Segment
 from ..players.state import Run_State
@@ -12,10 +12,12 @@ class Map(Segment):
         self.bonuses = []
 
     def on_enter_start(self, player):
-        """reset state when entering start again in map mode"""
-        if (player.state.timer_mode == Timer_Mode.MAP
-          and player.state.map_state != Run_State.START):
-            player.state.reset()
+        if player.state.timer_mode == Timer_Mode.MAP:
+            # reset state when entering start again in map mode
+            if player.state.map_state != Run_State.START:
+                print('entered map > setting state to start')
+                player.state.reset()
+                player.state.map_state = Run_State.START
 
     def on_leave_start(self, player):
         if (player.state.map_state == Run_State.START
@@ -23,7 +25,8 @@ class Map(Segment):
 
             # start run
             subtick = self.start_zone.time_to_zone_edge(player.state.previous_center, player.state.previous_extents, player.state.previous_velocity)
-            start_time = Server.tick - 1 + subtick
+            print(f'left start, subtick: {subtick}')
+            start_time = server.tick - 1 + subtick
 
             player.state.map_state = Run_State.RUN
             player.state.map[0] = self
@@ -35,7 +38,8 @@ class Map(Segment):
 
             # finish run
             subtick = self.end_zone.time_to_zone_edge(player.state.previous_center, player.state.previous_extents, player.state.previous_velocity)
-            end_time = Server.tick - 1 + subtick
+            print(f'entered end, subtick: {subtick}')
+            end_time = server.tick - 1 + subtick
 
             player.state.map[2] = end_time
             player.state.map_state = Run_State.END         
@@ -49,5 +53,5 @@ class Map(Segment):
             
             # entered checkpoint
             subtick = checkpoint.time_to_zone_edge(player.state.previous_center, player.state.previous_extents, player.state.previous_velocity)
-            enter_time = Server.tick - 1 + subtick
+            enter_time = server.tick - 1 + subtick
             player.state.checkpoints.append(checkpoint, enter_time)
