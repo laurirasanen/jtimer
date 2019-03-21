@@ -1,0 +1,76 @@
+0.1.0:
+
+- chat messages for entering cps, finishing map/course/bonus, etc.
+
+- hud timer
+	at segment start:
+		> jump_mapname (map name)
+		> map start/course/bonus Start (status)
+		> map/course/bonus mode (mode)
+	during segment run:
+		> time
+		> map/course/bonus (status)
+		> map/course/bonus mode (mode)
+	end of segment:
+		> time
+		> map start/course/bonus End (status)
+		> map/course/bonus mode (mode)
+	
+- sidebar hud
+	> timelimit
+	> pr time
+	> wr time
+	> spectators
+	
+- loading map data from file
+	> map id
+	> start zone
+	> end zone
+	> tier
+
+- loading course data from file
+	> course id
+	> start zone
+	> end zone
+	> tier
+	
+- loading bonus data from file
+	> bonus id
+	> start zone
+	> end zone
+	> tier
+	
+- loading checkpoint data from file
+	> checkpoint id
+	> which map, course, bonus ids does checkpoint apply to?
+	> this allows us to share a checkpoint zone between map, course and bonus runs!
+	> ordering of checkpoints might be confusing this way however, on maps where
+	> for example course 2 is just the map backwards.
+	> add checkpoint ids to map/course/bonus data in order of zones instead?
+
+
+0.2.0:
+
+- database functionality
+
+- interacting with api/db middle-man application running on host machine
+
+- threading!
+
+- in-game menus
+
+- in-game admin zone editing
+
+- commands
+	> times
+	> ranks
+	> maps
+	> show zones
+	> voting
+	> admin stuff (map editing, zoning, bans, kicks, etc..)
+	
+	
+	
+1.0.0: (public release)
+
+- ???
