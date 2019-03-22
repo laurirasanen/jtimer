@@ -64,9 +64,9 @@ def draw_timer(player):
                 player.state.bonus[2] - player.state.bonus[1]
             )
 
-    # show any checkpoint from last 5 seconds
-    if len(player.state.checkpoints) > 0:
-        if player.state.checkpoints[-1][1] > server.tick - (200 / 3) * 5:
+    # show last checkpoint if player has any
+    if player.state.running:
+        if len(player.state.checkpoints) > 0:
             # TODO: wr / pr splits
             cp_line = ticks_to_timestamp(player.state.checkpoints[-1][1])
 
