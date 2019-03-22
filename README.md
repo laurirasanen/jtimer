@@ -1,5 +1,5 @@
-# Opentimer
-Opentimer is a [Source.Python](https://github.com/Source-Python-Dev-Team/Source.Python) speedrun timer plugin for TF2. Other Source games might work but have not been tested. Opentimer is fully open source and welcomes contributors.
+# jtimer
+jtimer is a [Source.Python](https://github.com/Source-Python-Dev-Team/Source.Python) speedrun timer plugin for TF2. Other Source games might work but have not been tested. jtimer is fully open source and welcomes contributors.
 
 # Features
   - Sub engine tick timer accuracy
@@ -21,7 +21,7 @@ Opentimer is a [Source.Python](https://github.com/Source-Python-Dev-Team/Source.
 
 # Contributing
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)  
-Opentimer uses [Black](https://github.com/ambv/black) for code formatting. Contributors should follow the same style guidelines to maintain consistency and readability of the codebase. Small pull requests and those that do not implement new major features can be made directly into the `develop` branch. Large pull requests or ones that do implement new features should be made into a new branch, using the naming scheme `feature/<feature_name>`.
+jtimer uses [Black](https://github.com/ambv/black) for code formatting. Contributors should follow the same style guidelines to maintain consistency and readability of the codebase. Small pull requests and those that do not implement new major features can be made directly into the `develop` branch. Large pull requests or ones that do implement new features should be made into a new branch, using the naming scheme `feature/<feature_name>`.
 
 # Contributors
 [Lauri Räsänen (Author)](https://github.com/laurirasanen)
