@@ -82,7 +82,7 @@ def on_client_active(index):
     if PlayerInfo.is_fake_client(playerinfo) or PlayerInfo.is_hltv(playerinfo):
         return
     if PlayerInfo.is_player(playerinfo):
-        player = Player(PlayerInfo)
+        player = Player(playerinfo)
         timer.add_player(player)
 
 

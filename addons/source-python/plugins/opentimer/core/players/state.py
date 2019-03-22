@@ -132,8 +132,8 @@ class State:
 
 class Run_State(Enum):
     NONE = 0
-    START = (1,)
-    RUN = (2,)
+    START = 1
+    RUN = 2
     END = 3
 
 
@@ -145,13 +145,13 @@ class Timer_Mode(Enum):
 
 
 class Player_Class(Enum):
-    NONE = (0,)
-    SCOUT = (1,)
-    SOLDIER = (2,)
-    PYRO = (3,)
-    DEMOMAN = (4,)
-    HEAVY = (5,)
-    ENGINEER = (6,)
-    MEDIC = (7,)
-    SNIPER = (8,)
+    NONE = 0
+    SCOUT = 1
+    SOLDIER = 2
+    PYRO = 3
+    DEMOMAN = 4
+    HEAVY = 5
+    ENGINEER = 6
+    MEDIC = 7
+    SNIPER = 8
     SPY = 9

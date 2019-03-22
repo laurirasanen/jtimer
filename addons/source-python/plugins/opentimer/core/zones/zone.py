@@ -90,7 +90,6 @@ class Zone:
 
         # fraction of ticks to zone edge
         time = dist / (velocity.length * server.tick_interval)
-        print(f"tmax: {tmax}, tmin: {tmin}, dist: {dist}, time: {time}")
 
         # clamp between 0 and 1
         return max(0, min(time, 1))
