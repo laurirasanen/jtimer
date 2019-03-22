@@ -5,7 +5,7 @@ from ..timer import timer
 from ..hud import hud
 
 
-class State():
+class State:
     def __init__(self, player):
         self.player_reference = player
         self.player_class = Player_Class.NONE
@@ -25,7 +25,7 @@ class State():
         self.timer_mode = Timer_Mode.NONE
         self.map_state = Run_State.NONE
         self.course_state = Run_State.NONE
-        self.bonus_state = Run_State.NONE        
+        self.bonus_state = Run_State.NONE
 
         # (Segment, start_time, end_time)
         self.checkpoints = []
@@ -66,11 +66,15 @@ class State():
         # are we running?
         if self.running:
             if type(origin) != mathlib.Vector:
-                print(f'ERR: Trying to update Player State but origin is not Type(mathlib.Vector)!')
+                print(
+                    f"ERR: Trying to update Player State but origin is not Type(mathlib.Vector)!"
+                )
                 return
 
             if type(vecMinsMaxs) != mathlib.Vector:
-                print(f'ERR: Trying to update Player State but vecMinsMaxs is not Type(mathlib.Vector)!')
+                print(
+                    f"ERR: Trying to update Player State but vecMinsMaxs is not Type(mathlib.Vector)!"
+                )
                 return
 
             self.previous_origin = self.origin
@@ -87,7 +91,7 @@ class State():
 
             self.previous_center = self.center
             self.center = self.origin
-            self.center[2] += vecMinsMaxs[2]/2
+            self.center[2] += vecMinsMaxs[2] / 2
 
             self.previous_velocity = self.velocity
             self.velocity = velocity
@@ -119,7 +123,7 @@ class State():
                 # check checkpoints
                 for cp in segment.checkpoints:
                     if cp.is_overlapping(self.center, self.extents):
-                        segment.on_enter_checkpoint(self.player_reference, cp)                               
+                        segment.on_enter_checkpoint(self.player_reference, cp)
 
         # update hud every half a second
         if server.tick % 33 == 0:
@@ -128,9 +132,10 @@ class State():
 
 class Run_State(Enum):
     NONE = 0
-    START = 1,
-    RUN = 2,
+    START = (1,)
+    RUN = (2,)
     END = 3
+
 
 class Timer_Mode(Enum):
     NONE = 0
@@ -138,14 +143,15 @@ class Timer_Mode(Enum):
     COURSE = 2
     BONUS = 3
 
+
 class Player_Class(Enum):
-    NONE = 0,
-    SCOUT = 1,
-    SOLDIER = 2,
-    PYRO = 3,
-    DEMOMAN = 4,
-    HEAVY = 5,
-    ENGINEER = 6,
-    MEDIC = 7,
-    SNIPER = 8,
+    NONE = (0,)
+    SCOUT = (1,)
+    SOLDIER = (2,)
+    PYRO = (3,)
+    DEMOMAN = (4,)
+    HEAVY = (5,)
+    ENGINEER = (6,)
+    MEDIC = (7,)
+    SNIPER = (8,)
     SPY = 9

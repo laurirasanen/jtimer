@@ -1,6 +1,7 @@
 from ..zones.zone import Zone
 
-class Segment():
+
+class Segment:
     def __init__(self, tier):
         self.tier = tier
         self.checkpoints = []

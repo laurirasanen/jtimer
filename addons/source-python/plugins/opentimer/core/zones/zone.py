@@ -6,9 +6,10 @@ from effects import box
 from filters.recipients import RecipientFilter
 from engines.precache import Model
 
-model = Model('sprites/laser.vmt')
+model = Model("sprites/laser.vmt")
 
-class Zone():
+
+class Zone:
     def __init__(self, center=mathlib.NULL_VECTOR, extents=mathlib.NULL_VECTOR):
         self.center = center
         # half-widths
@@ -19,10 +20,16 @@ class Zone():
     def is_overlapping(self, other_center, other_extents):
         """AABB-AABB test
         (check if distance between centers is less than extents of both objects)"""
-        x = abs(self.center[0] - other_center[0]) <= (self.extents[0] + other_extents[0]);
-        y = abs(self.center[1] - other_center[1]) <= (self.extents[1] + other_extents[1]);
-        z = abs(self.center[2] - other_center[2]) <= (self.extents[2] + other_extents[2]);
-     
+        x = abs(self.center[0] - other_center[0]) <= (
+            self.extents[0] + other_extents[0]
+        )
+        y = abs(self.center[1] - other_center[1]) <= (
+            self.extents[1] + other_extents[1]
+        )
+        z = abs(self.center[2] - other_center[2]) <= (
+            self.extents[2] + other_extents[2]
+        )
+
         return x and y and z
 
     def time_to_zone_edge(self, other_center, other_extents, velocity, position_delta):
@@ -57,15 +64,17 @@ class Zone():
         # t1, t3, t5
         vt0 = [0.0, 0.0, 0.0]
         for i in range(0, 3):
-            vt0[i] = (self.bounds[0][i] - corner[i])*dirfrac[i]
+            vt0[i] = (self.bounds[0][i] - corner[i]) * dirfrac[i]
 
         # t2, t4, t6
         vt1 = [0.0, 0.0, 0.0]
         for i in range(0, 3):
-            vt1[i] = (self.bounds[1][i] - corner[i])*dirfrac[i]
+            vt1[i] = (self.bounds[1][i] - corner[i]) * dirfrac[i]
 
         # tmin is negative if we're leaving a zone, use abs
-        tmin = abs(max(max(min(vt0[0], vt1[0]), min(vt0[1], vt1[1])), min(vt0[2], vt1[2])))
+        tmin = abs(
+            max(max(min(vt0[0], vt1[0]), min(vt0[1], vt1[1])), min(vt0[2], vt1[2]))
+        )
         tmax = min(min(max(vt0[0], vt1[0]), max(vt0[1], vt1[1])), max(vt0[2], vt1[2]))
 
         # if tmax < 0, the whole AABB is behind us,
@@ -81,7 +90,7 @@ class Zone():
 
         # fraction of ticks to zone edge
         time = dist / (velocity.length * server.tick_interval)
-        print(f'tmax: {tmax}, tmin: {tmin}, dist: {dist}, time: {time}')
+        print(f"tmax: {tmax}, tmin: {tmin}, dist: {dist}, time: {time}")
 
         # clamp between 0 and 1
         return max(0, min(time, 1))
@@ -107,7 +116,7 @@ class Zone():
         if end not in (0, 1):
             end = 0
 
-        if axis not in (0,1,2):
+        if axis not in (0, 1, 2):
             axis = 0
 
         if direction not in (-1, 1):
@@ -137,5 +146,5 @@ class Zone():
             frame_rate=255,
             halo=model,
             model=model,
-            start_frame=0
+            start_frame=0,
         )
