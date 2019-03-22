@@ -61,11 +61,11 @@ def load():
         if not p.is_fake_client() and not p.is_hltv() and not p.is_bot():
             player = Player(p.playerinfo)
             timer.add_player(player)
-    print(f"opentimer loaded!")
+    print(f"jtimer loaded!")
 
 
 def unload():
-    print(f"opentimer unloaded!")
+    print(f"jtimer unloaded!")
 
 
 @OnTick
