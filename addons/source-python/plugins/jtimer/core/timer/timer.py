@@ -1,5 +1,5 @@
 from ..players.state import State, Run_State, Timer_Mode
-from ..chat.messages import timer_enabled_message, timer_disabled_message
+from ..chat.messages import message_timer_enable, message_timer_disable, message_prefix
 from ..helpers.converts import steamid_to_player, userid_to_source_player
 from ..map.map import Map
 
@@ -38,15 +38,15 @@ def update_timers():
 
 def toggle_timer(index, steamid):
     """toggle player timer on and off"""
-    for p in players:
-        if p.steamid == steamid:
-            if p.state.timer_mode != Timer_Mode.NONE:
-                p.state.timer_mode = Timer_Mode.NONE
-                timer_disabled_message.send(index)
-                return
-            else:
-                p.state.timer_mode = Timer_Mode.MAP
-                timer_enabled_message.send(index)
-                p.teleport_to_start()
-                return
+    player = steamid_to_player(steamid)
+    if player != None:
+        if player.state.timer_mode != Timer_Mode.NONE:
+            player.state.timer_mode = Timer_Mode.NONE
+            message_timer_disable.send(index)
+            return
+        else:
+            player.state.timer_mode = Timer_Mode.MAP
+            message_timer_enable.send(index)
+            player.teleport_to_start()
+            return
     print(f"ERR: Tried to toggle player {steamid} timer but couldn't find player!")

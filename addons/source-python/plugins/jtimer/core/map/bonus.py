@@ -48,7 +48,7 @@ class Bonus(Segment):
         ):
 
             # finish run
-            subtick = self.start_zone.time_to_zone_edge(
+            subtick = self.end_zone.time_to_zone_edge(
                 player.state.previous_center,
                 player.state.previous_extents,
                 player.state.previous_velocity,

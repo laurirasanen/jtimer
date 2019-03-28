@@ -8,33 +8,8 @@
 	> wr time
 	> spectators
 	
-- database functionality:
-	- loading map data
-		> map id
-		> start zone
-		> end zone
-		> tier
-
-	- loading course data
-		> course id
-		> start zone
-		> end zone
-		> tier
-
-	- loading bonus data
-		> bonus id
-		> start zone
-		> end zone
-		> tier
-
-	- loading checkpoint data
-		> checkpoint id
-		> which map, course, bonus ids does checkpoint apply to?
-		> this allows us to share a checkpoint zone between map, course and bonus runs!
-		> ordering of checkpoints might be confusing this way however, on maps where
-		> for example course 2 is just the map backwards.
-		> have checkpoint id references in map/course/bonus data instead of the other way around?
-		> if map has courses, should all checkpoints be in the course segments and not in map?
+- api stuff:
+	- loading map/bonus/course/checkpoint data on map change
 		
 	- loading and saving player profiles
 	
@@ -45,11 +20,11 @@
 
 0.2.0:
 
-- threading!
+- threading?
 
 - in-game menus
 
-- in-game admin zone editing
+- in-game admin zone editing, adding maps, etc.
 
 - commands
 	> times
@@ -57,12 +32,7 @@
 	> maps
 	> show zones
 	> voting
-	> admin stuff (map editing, zoning, bans, kicks, etc..)
-	
-	
-0.3.0:
-
-- interacting with api/db middle-man application running on host machine
+	> admin stuff (bans, kicks, etc..)
 	
 	
 1.0.0: (public release)

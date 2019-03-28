@@ -59,7 +59,7 @@ def load():
 
     for p in PlayerIter():
         if not p.is_fake_client() and not p.is_hltv() and not p.is_bot():
-            player = Player(p.playerinfo)
+            player = Player(p.playerinfo, p.index)
             timer.add_player(player)
     print(f"jtimer loaded!")
 
@@ -82,7 +82,7 @@ def on_client_active(index):
     if PlayerInfo.is_fake_client(playerinfo) or PlayerInfo.is_hltv(playerinfo):
         return
     if PlayerInfo.is_player(playerinfo):
-        player = Player(playerinfo)
+        player = Player(playerinfo, index)
         timer.add_player(player)
 
 

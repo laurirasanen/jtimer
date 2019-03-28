@@ -3,6 +3,12 @@ from engines.server import server
 from .segment import Segment
 from ..players.state import Run_State
 from ..players.state import Timer_Mode
+from ..chat.messages import (
+    message_map_finish_no_split,
+    message_checkpoint_enter_no_split,
+    message_prefix,
+)
+from ..helpers.converts import ticks_to_timestamp
 
 
 class Map(Segment):
@@ -46,7 +52,7 @@ class Map(Segment):
         ):
 
             # finish run
-            subtick = self.start_zone.time_to_zone_edge(
+            subtick = self.end_zone.time_to_zone_edge(
                 player.state.previous_center,
                 player.state.previous_extents,
                 player.state.previous_velocity,
@@ -57,6 +63,11 @@ class Map(Segment):
 
             player.state.map[2] = end_time
             player.state.map_state = Run_State.END
+            message_map_finish_no_split.send(
+                player.index,
+                player=player.name,
+                time=ticks_to_timestamp(player.state.map[2] - player.state.map[1]),
+            )
 
     def on_enter_checkpoint(self, player, checkpoint):
         if (
@@ -76,3 +87,6 @@ class Map(Segment):
             )
             enter_time = server.tick - 1 + subtick
             player.state.checkpoints.append(checkpoint, enter_time)
+            message_checkpoint_enter_no_split.send(
+                player.index, index=checkpoint.index, time=enter_time
+            )
