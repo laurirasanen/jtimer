@@ -10,12 +10,14 @@ model = Model("sprites/laser.vmt")
 
 
 class Zone:
-    def __init__(self, center=mathlib.NULL_VECTOR, extents=mathlib.NULL_VECTOR):
+    def __init__(self, center=mathlib.NULL_VECTOR, extents=mathlib.NULL_VECTOR, orientation=0):
         self.center = center
         # half-widths
         self.extents = extents
         # opposite corners
         self.bounds = (self.center - self.extents, self.center + self.extents)
+        # (z) rotation of the dz, used for starting zones
+        self.orientation = orientation
 
     def is_overlapping(self, other_center, other_extents):
         """AABB-AABB test

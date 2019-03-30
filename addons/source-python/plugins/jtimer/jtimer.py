@@ -37,17 +37,21 @@ def load():
     # test zones
     m = Map(0)
 
-    szc1 = Vector(-12115, -12195, -11805)
-    szc2 = Vector(-12905, -11995, -11580)
+    # soar start dz
+    szc1 = Vector(1590, -2340, -1900)
+    szc2 = Vector(1162, -2215, -1500)
+
     szcenter = (szc1 + szc2) / 2
     szextents = szcenter - szc2
     for i in range(0, 3):
         szextents[i] = abs(szextents[i])
-    sz = Zone(szcenter, szextents)
+    sz = Zone(szcenter, szextents, 90)
     m.add_start_zone(sz)
 
-    ezc1 = Vector(-10300, -13910, -12720)
-    ezc2 = Vector(-9700, -12980, -12230)
+    # soar lvl 1 end dz
+    ezc1 = Vector(1635, -940, -1560)
+    ezc2 = Vector(1250, -850, -1000)
+
     ezcenter = (ezc1 + ezc2) / 2
     ezextents = ezcenter - ezc2
     for i in range(0, 3):
