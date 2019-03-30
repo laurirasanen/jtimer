@@ -68,7 +68,11 @@ def draw_timer(player):
     if player.state.running:
         if len(player.state.checkpoints) > 0:
             # TODO: wr / pr splits
-            cp_line = ticks_to_timestamp(player.state.checkpoints[-1][1])
+            # just prints the time since the map started now
+            last_cp = player.state.checkpoints[-1]
+            cp_line = " (cp" + str(last_cp[0].index) + ": "
+            cp_line += ticks_to_timestamp(last_cp[1] - player.state.map[1])
+            cp_line += ")"
 
     # combine lines
     combined = ""

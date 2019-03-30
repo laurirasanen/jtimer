@@ -21,6 +21,7 @@ from .core.players.state import Player_Class
 from .core.players.state import State
 from .core.helpers.converts import userid_to_player, steamid_to_player
 from .core.map.map import Map
+from .core.map.checkpoint import Checkpoint
 from .core.zones.zone import Zone
 
 # =============
@@ -45,11 +46,11 @@ def load():
     # end of lvl 1
     p1 = Vector(1635, -940, -1560)
     p2 = Vector(1250, -850, -1000)
-    m.add_checkpoint(Zone(p1, p2))
+    m.add_checkpoint(Checkpoint(1, p1, p2))
 
     p1 = Vector(1550, -135, -1500)
     p2 = Vector(1690, 8, -1000)
-    m.add_checkpoint(Zone(p1, p2))
+    m.add_checkpoint(Checkpoint(2, p1, p2))
 
     # start of lvl 2
     p1 = Vector(1290, 8, -1500)
@@ -75,6 +76,8 @@ def on_tick():
     if server.tick % 67 == 0:
         timer.current_map.start_zone.draw()
         timer.current_map.end_zone.draw()
+        for checkpoint in timer.current_map.checkpoints:
+            checkpoint.draw()
 
 
 @OnClientActive

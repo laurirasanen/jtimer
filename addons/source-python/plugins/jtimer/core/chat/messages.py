@@ -25,6 +25,8 @@ message_timer_disable = SayText2(chat_strings["timer disable"])
 
 message_checkpoint_enter = SayText2(chat_strings["checkpoint enter"])
 message_checkpoint_enter_no_split = SayText2(chat_strings["checkpoint enter no split"])
+message_checkpoint_wrong_order = SayText2(chat_strings["checkpoint enter wrong order"])
+message_checkpoint_missed = SayText2(chat_strings["checkpoint missed"])
 
 message_map_finish = SayText2(chat_strings["map finish"])
 message_map_finish_no_split = SayText2(chat_strings["map finish no split"])
