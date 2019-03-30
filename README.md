@@ -24,4 +24,5 @@ jtimer is a [Source.Python](https://github.com/Source-Python-Dev-Team/Source.Pyt
 jtimer uses [Black](https://github.com/ambv/black) for code formatting. Contributors should follow the same style guidelines to maintain consistency and readability of the codebase. Small pull requests and those that do not implement new major features can be made directly into the `develop` branch. Large pull requests or ones that do implement new features should be made into a new branch, using the naming scheme `feature/<feature_name>`.
 
 # Contributors
+[Yoeri Poels (Author)](https://github.com/yoeripoels)
 [Lauri Räsänen (Author)](https://github.com/laurirasanen)
