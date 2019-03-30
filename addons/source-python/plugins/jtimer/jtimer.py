@@ -37,27 +37,24 @@ def load():
     # test zones
     m = Map(0)
 
-    # soar start dz
-    szc1 = Vector(1590, -2340, -1900)
-    szc2 = Vector(1162, -2215, -1500)
+    # soar start
+    p1 = Vector(1590, -2340, -1900)
+    p2 = Vector(1162, -2215, -1500)
+    m.add_start_zone(Zone(p1, p2, 90))
 
-    szcenter = (szc1 + szc2) / 2
-    szextents = szcenter - szc2
-    for i in range(0, 3):
-        szextents[i] = abs(szextents[i])
-    sz = Zone(szcenter, szextents, 90)
-    m.add_start_zone(sz)
+    # end of lvl 1
+    p1 = Vector(1635, -940, -1560)
+    p2 = Vector(1250, -850, -1000)
+    m.add_checkpoint(Zone(p1, p2))
 
-    # soar lvl 1 end dz
-    ezc1 = Vector(1635, -940, -1560)
-    ezc2 = Vector(1250, -850, -1000)
+    p1 = Vector(1550, -135, -1500)
+    p2 = Vector(1690, 8, -1000)
+    m.add_checkpoint(Zone(p1, p2))
 
-    ezcenter = (ezc1 + ezc2) / 2
-    ezextents = ezcenter - ezc2
-    for i in range(0, 3):
-        ezextents[i] = abs(ezextents[i])
-    ez = Zone(ezcenter, ezextents)
-    m.add_end_zone(ez)
+    # start of lvl 2
+    p1 = Vector(1290, 8, -1500)
+    p2 = Vector(1100, -135, -1000)
+    m.add_end_zone(Zone(p1, p2))
 
     timer.current_map = m
 

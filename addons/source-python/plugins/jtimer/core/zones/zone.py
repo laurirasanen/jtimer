@@ -10,10 +10,10 @@ model = Model("sprites/laser.vmt")
 
 
 class Zone:
-    def __init__(self, center=mathlib.NULL_VECTOR, extents=mathlib.NULL_VECTOR, orientation=0):
-        self.center = center
-        # half-widths
-        self.extents = extents
+    def __init__(self, p1=mathlib.NULL_VECTOR, p2=mathlib.NULL_VECTOR, orientation=0):
+        self.center = (p1 + p2) / 2
+        # set half-widths
+        self.extents = Vector(*[abs(x) for x in self.center - p2])
         # opposite corners
         self.bounds = (self.center - self.extents, self.center + self.extents)
         # (z) rotation of the dz, used for starting zones
