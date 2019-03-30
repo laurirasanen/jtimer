@@ -1,12 +1,12 @@
 # ignore source.python
 src
-cfg
 logs
 sound
 .pylintrc
 checker.bat
 resource/*
 addons/*
+cfg/*
 *__pycache__
 
 # unignore our plugin
@@ -29,3 +29,8 @@ resource/source-python/*
 !resource/source-python/translations/
 resource/source-python/translations/*
 !resource/source-python/translations/jtimer
+
+# unignore cfg
+!cfg/source-python/
+cfg/source-python/*
+!cfg/source-python/jtimer/

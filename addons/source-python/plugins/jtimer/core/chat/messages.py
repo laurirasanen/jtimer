@@ -81,4 +81,3 @@ for saytext in __all__:
 
         # format colors
         saytext.message[key] = saytext.message[key].format_map(SafeDict(color_formats))
-        print(saytext.message[key])
