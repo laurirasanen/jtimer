@@ -17,6 +17,10 @@ class Player:
         self.name = playerinfo.name
         self.state = State(self)
 
+        self.gag = False
+        self.mute = False
+        self.commandRestricted = False
+
     def teleport_to_start(self):
         if self.state.timer_mode == Timer_Mode.MAP:
             start_zone = timer.current_map.start_zone

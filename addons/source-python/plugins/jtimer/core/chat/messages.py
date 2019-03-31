@@ -1,4 +1,3 @@
-from ..translations import chat_strings
 from messages.base import SayText2
 from messages.colors.saytext2 import (
     BLUE,
@@ -16,6 +15,11 @@ from messages.colors.saytext2 import (
     WHITE,
     YELLOW,
 )
+from events import Event
+
+from ..translations import chat_strings
+from ..commands.player.clientcommands import CommandController
+
 
 message_prefix = SayText2(chat_strings["prefix default"])
 message_prefix_multiline = SayText2(chat_strings["prefix multiline"])
@@ -81,3 +85,19 @@ for saytext in __all__:
 
         # format colors
         saytext.message[key] = saytext.message[key].format_map(SafeDict(color_formats))
+
+class ChatBaron:
+    def __init__(self):
+        self.hideChatPlayers = {}
+
+    @Event("player_say")
+    def onSay(self, event):
+        player = userid_to_player(game_event["userid"])
+        message = game_event["text"]
+
+        if player.gag:
+            return EventAction.BLOCK
+
+        if message[0] in CommandController.prefix:
+            CommandController.checkCommand(message, player)
+            return EventAction.STOPBROADCAST
