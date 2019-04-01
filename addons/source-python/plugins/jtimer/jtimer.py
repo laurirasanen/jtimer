@@ -31,6 +31,7 @@ from .core.map.checkpoint import Checkpoint
 from .core.zones.zone import Zone
 from .core.api.maps import map_info_name
 from .core.api.zones import map_zones
+from .core.api.auth import on_load as auth_on_load, on_unload as auth_on_unload
 
 # =============
 # >> GLOBALS
@@ -43,13 +44,15 @@ from .core.api.zones import map_zones
 
 
 def load():
+    auth_on_load()
     get_map()
     get_players()
-    print(f"jtimer loaded!")
+    print(f"[jtimer] Loaded!")
 
 
 def unload():
-    print(f"jtimer unloaded!")
+    auth_on_unload()
+    print(f"[jtimer] Unloaded!")
 
 
 def get_map():
