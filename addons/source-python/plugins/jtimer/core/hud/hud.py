@@ -81,12 +81,12 @@ def draw_timer(player):
         combined += time_line
 
     if len(cp_line) > 0:
-        combined += cp_line
-
-    # NOTE:
-    # HintText needs something on "empty" lines or it freaks out,
-    # use space between multiple newlines
-    combined += "\n \n"
+        combined += "\n" + cp_line + "\n"
+    else:
+        # NOTE:
+        # HintText needs something on "empty" lines or it freaks out,
+        # use space between multiple newlines
+        combined += "\n \n"
 
     if len(zone_line) > 0:
         combined += f"{zone_line}\n \n"

@@ -1,6 +1,6 @@
 {
 	"api":
 	{
-		"host": "localhost"
+		"host": "https://jtimer-api.occasionally.cool"
 	}
 }

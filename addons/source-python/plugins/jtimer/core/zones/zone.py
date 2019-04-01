@@ -91,7 +91,13 @@ class Zone:
             dist = min(tmin, tmax)
 
         # fraction of ticks to zone edge
-        time = dist / (velocity.length * server.tick_interval)
+        try:
+            time = dist / (velocity.length * server.tick_interval)
+        except ZeroDivisionError:
+            # edge case when player velocity is 0, avoid divison by 0 errors
+            # (velocity can be 0 when standing still and crouching/uncrouching to leave or enter zone
+            # or if a player enters or leaves the zone by hitting a teleport)
+            return 1
 
         # clamp between 0 and 1
         return max(0, min(time, 1))

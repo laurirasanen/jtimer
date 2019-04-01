@@ -3,7 +3,13 @@
 # =============
 
 # Source.Python imports
-from listeners import OnTick, OnClientActive, OnClientDisconnect
+from listeners import (
+    OnTick,
+    OnClientActive,
+    OnClientDisconnect,
+    OnLevelInit,
+    OnLevelEnd,
+)
 from commands.typed import TypedSayCommand
 from commands import CommandReturn
 from players.helpers import playerinfo_from_index
@@ -23,6 +29,8 @@ from .core.helpers.converts import userid_to_player, steamid_to_player
 from .core.map.map import Map
 from .core.map.checkpoint import Checkpoint
 from .core.zones.zone import Zone
+from .core.api.maps import map_info_name
+from .core.api.zones import map_zones
 
 # =============
 # >> GLOBALS
@@ -35,34 +43,8 @@ from .core.zones.zone import Zone
 
 
 def load():
-    # test zones
-    m = Map(0)
-
-    # soar start
-    p1 = Vector(1590, -2340, -1900)
-    p2 = Vector(1162, -2215, -1500)
-    m.add_start_zone(Zone(p1, p2, 90))
-
-    # end of lvl 1
-    p1 = Vector(1635, -940, -1560)
-    p2 = Vector(1250, -850, -1000)
-    m.add_checkpoint(Checkpoint(1, p1, p2))
-
-    p1 = Vector(1550, -135, -1500)
-    p2 = Vector(1690, 8, -1000)
-    m.add_checkpoint(Checkpoint(2, p1, p2))
-
-    # start of lvl 2
-    p1 = Vector(1290, 8, -1500)
-    p2 = Vector(1100, -135, -1000)
-    m.add_end_zone(Zone(p1, p2))
-
-    timer.current_map = m
-
-    for p in PlayerIter():
-        if not p.is_fake_client() and not p.is_hltv() and not p.is_bot():
-            player = Player(p.playerinfo, p.index)
-            timer.add_player(player)
+    get_map()
+    get_players()
     print(f"jtimer loaded!")
 
 
@@ -70,14 +52,84 @@ def unload():
     print(f"jtimer unloaded!")
 
 
+def get_map():
+    # check if current map exists in api
+    print(f"[jtimer] Getting map info for '{server.map_name}'")
+    map_info, response = map_info_name(server.map_name)
+
+    if map_info is None:
+        print(f"[jtimer] Couldn't get map info for '{server.map_name}'.")
+        if response.status_code < 500:
+            print(f"api response: {response.status_code}\n{response.json()}")
+        else:
+            print(f"api response: {response.status_code}")
+
+    else:
+        print(f"[jtimer] Loaded map info for '{server.map_name}'!")
+        map_ = Map(map_info["tiers"]["soldier"])
+
+        zones, response = map_zones(map_info["id"])
+
+        if zones is None:
+            print(f"[jtimer] Couldn't get map zones for '{server.map_name}'.")
+            if response.status_code < 500:
+                print(f"api response: {response.status_code}\n{response.json()}")
+            else:
+                print(f"api response: {response.status_code}")
+
+        else:
+            for z in zones:
+                if z["zone_type"] == "start":
+                    p1 = Vector(z["p1"][0], z["p1"][1], z["p1"][2])
+                    p2 = Vector(z["p2"][0], z["p2"][1], z["p2"][2])
+                    map_.add_start_zone(Zone(p1, p2))
+
+                elif z["zone_type"] == "end":
+                    p1 = Vector(z["p1"][0], z["p1"][1], z["p1"][2])
+                    p2 = Vector(z["p2"][0], z["p2"][1], z["p2"][2])
+                    map_.add_end_zone(Zone(p1, p2))
+
+                elif z["zone_type"] == "cp":
+                    p1 = Vector(
+                        z["zone"]["p1"][0], z["zone"]["p1"][1], z["zone"]["p1"][2]
+                    )
+                    p2 = Vector(
+                        z["zone"]["p2"][0], z["zone"]["p2"][1], z["zone"]["p2"][2]
+                    )
+                    map_.add_checkpoint(Checkpoint(z["cp_index"], p1, p2))
+
+            print(f"[jtimer] Loaded zones for '{server.map_name}'!")
+            timer.current_map = map_
+
+
+def get_players():
+    for p in PlayerIter():
+        if not p.is_fake_client() and not p.is_hltv() and not p.is_bot():
+            player = Player(p.playerinfo, p.index)
+            timer.add_player(player)
+
+
+@OnLevelInit
+def on_level_init(level):
+    timer.clear()
+    get_map()
+    get_players()
+
+
+@OnLevelEnd
+def on_level_end():
+    timer.clear()
+
+
 @OnTick
 def on_tick():
     timer.update_timers()
     if server.tick % 67 == 0:
-        timer.current_map.start_zone.draw()
-        timer.current_map.end_zone.draw()
-        for checkpoint in timer.current_map.checkpoints:
-            checkpoint.draw()
+        if timer.current_map:
+            timer.current_map.start_zone.draw()
+            timer.current_map.end_zone.draw()
+            for checkpoint in timer.current_map.checkpoints:
+                checkpoint.draw()
 
 
 @OnClientActive

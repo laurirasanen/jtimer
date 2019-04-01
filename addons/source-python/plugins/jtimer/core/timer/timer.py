@@ -29,6 +29,12 @@ def remove_player(steamid):
     print(f"ERR: Tried to remove nonexistent player {steamid} from timer!")
 
 
+def clear():
+    """Reset everything on map load"""
+    players = []
+    current_map = None
+
+
 def update_timers():
     """update all timers of active players"""
     for p in players:
