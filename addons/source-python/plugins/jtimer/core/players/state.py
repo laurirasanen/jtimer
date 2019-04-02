@@ -145,13 +145,15 @@ class Timer_Mode(Enum):
 
 
 class Player_Class(Enum):
+    """Source.Python returns silly values for class indices"""
+
     NONE = 0
     SCOUT = 1
-    SOLDIER = 2
-    PYRO = 3
+    SOLDIER = 3
+    PYRO = 7
     DEMOMAN = 4
-    HEAVY = 5
-    ENGINEER = 6
-    MEDIC = 7
-    SNIPER = 8
-    SPY = 9
+    HEAVY = 6
+    ENGINEER = 9
+    MEDIC = 5
+    SNIPER = 2
+    SPY = 8

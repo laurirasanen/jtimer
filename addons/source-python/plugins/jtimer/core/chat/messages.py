@@ -79,7 +79,9 @@ for saytext in __all__:
         # add prefix
         if "{prefix}" in saytext.message[key]:
             if key in message_prefix.message:
-                saytext.message[key] = saytext.message[key].replace("{prefix}", message_prefix.message[key])
+                saytext.message[key] = saytext.message[key].replace(
+                    "{prefix}", message_prefix.message[key]
+                )
 
         # format colors
         saytext.message[key] = saytext.message[key].format_map(SafeDict(color_formats))

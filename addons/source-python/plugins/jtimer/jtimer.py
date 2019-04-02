@@ -23,7 +23,7 @@ from engines.server import server
 from .core.timer import timer
 from .core.chat import messages
 from .core.players.player import Player
-from .core.players.state import Player_Class
+from .core.players.state import Player_Class, Timer_Mode
 from .core.players.state import State
 from .core.helpers.converts import userid_to_player, steamid_to_player
 from .core.map.map import Map
@@ -110,6 +110,31 @@ def get_players():
         if not p.is_fake_client() and not p.is_hltv() and not p.is_bot():
             player = Player(p.playerinfo, p.index)
             timer.add_player(player)
+            if not p.playerinfo.is_dead:
+                player_start(player)
+
+
+def player_start(player):
+    player.state.reset()
+
+    if (
+        player.state.player_class == Player_Class.SOLDIER
+        or player.state.player_class == Player_Class.DEMOMAN
+    ):
+        # enable timer if disabled and map zoned
+        if timer.current_map and timer.current_map.start_zone:
+            if player.state.timer_mode == Timer_Mode.NONE:
+                player.state.timer_mode = Timer_Mode.MAP
+
+        else:
+            # map not zoned
+            player.state.timer_mode = Timer_Mode.NONE
+
+    else:
+        # unsupported class, disable timer
+        player.state.timer_mode = Timer_Mode.NONE
+
+    player.teleport_to_start()
 
 
 @OnLevelInit
@@ -177,12 +202,12 @@ def on_restart(command):
     return CommandReturn.BLOCK
 
 
-@Event("player_changeclass")
-def on_player_changeclass(game_event):
+@Event("player_spawn")
+def on_player_spawn(game_event):
     player = userid_to_player(game_event["userid"])
     class_index = game_event["class"]
     player.state.player_class = Player_Class(class_index)
-    player.state.reset()
+    player_start(player)
 
 
 @Event("player_death")
