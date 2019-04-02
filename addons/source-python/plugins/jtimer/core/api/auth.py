@@ -59,7 +59,7 @@ def authenticate():
 
     if r.status_code != 200:
         print("[jtimer] Failed to authenticate with the api.")
-        print(r.content())
+        print(r.content)
         return
 
     data = r.json()
@@ -67,23 +67,23 @@ def authenticate():
     # validate data
     if data is None:
         print(f"[jtimer] Failed to parse response from '/token/auth'.")
-        print(r.content())
+        print(r.content)
 
     if "access_token" not in data.keys():
         print("[jtimer] Authentication response is missing access_token.")
-        print(r.content())
+        print(r.content)
 
     if "refresh_token" not in data.keys():
         print("[jtimer] Authentication response is missing refresh_token.")
-        print(r.content())
+        print(r.content)
 
     if "access_token_expires_in" not in data.keys():
         print("[jtimer] Authentication response is missing access_token_expires_in.")
-        print(r.content())
+        print(r.content)
 
     if "refresh_token_expires_in" not in data.keys():
         print("[jtimer] Authentication response is missing refresh_token_expires_in.")
-        print(r.content())
+        print(r.content)
 
     global access_token, refresh_token, access_token_expires, refresh_token_expires
     old_refresh = None
@@ -123,23 +123,23 @@ def refresh_access():
 
     if r.status_code != 200:
         print("[jtimer] Failed to refresh access_token.")
-        print(r.content())
+        print(r.content)
         return
 
     data = r.json()
 
     if data is None:
         print(f"[jtimer] Failed to parse response from '/token/refresh'.")
-        print(r.content())
+        print(r.content)
 
     # validate data
     if "access_token" not in data.keys():
         print("[jtimer] Refresh response is missing access_token.")
-        print(r.content())
+        print(r.content)
 
     if "expires_in" not in data.keys():
         print("[jtimer] Refresh response is missing expires_in.")
-        print(r.content())
+        print(r.content)
 
     global access_token, access_token_expires
     old_access = access_token
@@ -196,7 +196,7 @@ def revoke_token(token, token_type):
 
     if r.status_code != 200:
         print(f"[jtimer] Failed to revoke {token_type} token.")
-        print(r.content())
+        print(r.content)
         return
 
     print(f"[jtimer] Revoked {token_type} token.")
