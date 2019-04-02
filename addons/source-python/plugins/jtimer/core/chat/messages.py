@@ -18,7 +18,6 @@ from messages.colors.saytext2 import (
 )
 
 message_prefix = SayText2(chat_strings["prefix default"])
-message_prefix_multiline = SayText2(chat_strings["prefix multiline"])
 
 message_timer_enable = SayText2(chat_strings["timer enable"])
 message_timer_disable = SayText2(chat_strings["timer disable"])
@@ -41,6 +40,8 @@ __all__ = (
     message_timer_disable,
     message_checkpoint_enter,
     message_checkpoint_enter_no_split,
+    message_checkpoint_wrong_order,
+    message_checkpoint_missed,
     message_map_finish,
     message_map_finish_no_split,
     message_map_improvement,
@@ -73,11 +74,12 @@ class SafeDict(dict):
         return "{" + key + "}"
 
 
-# add prefix to all messages
 for saytext in __all__:
     for key in saytext.message.keys():
-        if key in message_prefix.message:
-            saytext.message[key] = message_prefix.message[key] + saytext.message[key]
+        # add prefix
+        if "{prefix}" in saytext.message[key]:
+            if key in message_prefix.message:
+                saytext.message[key] = saytext.message[key].replace("{prefix}", message_prefix.message[key])
 
         # format colors
         saytext.message[key] = saytext.message[key].format_map(SafeDict(color_formats))
