@@ -85,7 +85,7 @@ def get_map():
                 if z["zone_type"] == "start":
                     p1 = Vector(z["p1"][0], z["p1"][1], z["p1"][2])
                     p2 = Vector(z["p2"][0], z["p2"][1], z["p2"][2])
-                    map_.add_start_zone(Zone(p1, p2))
+                    map_.add_start_zone(Zone(p1, p2, z["orientation"]))
 
                 elif z["zone_type"] == "end":
                     p1 = Vector(z["p1"][0], z["p1"][1], z["p1"][2])
