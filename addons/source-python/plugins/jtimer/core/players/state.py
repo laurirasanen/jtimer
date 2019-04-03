@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import IntEnum
 import mathlib
 from engines.server import server
-from ..timer import timer
+from .. import timer
 from ..hud import hud
 
 
@@ -130,21 +130,21 @@ class State:
             hud.draw_timer(self.player_reference)
 
 
-class Run_State(Enum):
+class Run_State(IntEnum):
     NONE = 0
     START = 1
     RUN = 2
     END = 3
 
 
-class Timer_Mode(Enum):
+class Timer_Mode(IntEnum):
     NONE = 0
     MAP = 1
     COURSE = 2
     BONUS = 3
 
 
-class Player_Class(Enum):
+class Player_Class(IntEnum):
     """Source.Python returns silly values for class indices"""
 
     NONE = 0

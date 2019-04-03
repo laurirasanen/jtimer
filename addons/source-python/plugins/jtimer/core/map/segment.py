@@ -2,8 +2,9 @@ from ..zones.zone import Zone
 
 
 class Segment:
-    def __init__(self, tier):
-        self.tier = tier
+    def __init__(self, stier, dtier):
+        self.stier = stier
+        self.dtier = dtier
         self.checkpoints = []
         self.start_zone = Zone()
         self.end_zone = Zone()

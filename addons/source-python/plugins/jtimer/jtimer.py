@@ -1,6 +1,8 @@
 # =============
 # >> IMPORTS
 # =============
+from threading import Timer
+from threading import Thread
 
 # Source.Python imports
 from listeners import (
@@ -18,9 +20,11 @@ from filters.players import PlayerIter
 from events import Event
 from mathlib import Vector
 from engines.server import server
+from steam import SteamID
+from cvars import ConVar
 
 # Custom imports
-from .core.timer import timer
+from .core import timer
 from .core.chat import messages
 from .core.players.player import Player
 from .core.players.state import Player_Class, Timer_Mode
@@ -32,6 +36,7 @@ from .core.zones.zone import Zone
 from .core.api.maps import map_info_name
 from .core.api.zones import map_zones
 from .core.api.auth import on_load as auth_on_load, on_unload as auth_on_unload
+from .core.api.players import add_player
 
 # =============
 # >> GLOBALS
@@ -46,7 +51,8 @@ from .core.api.auth import on_load as auth_on_load, on_unload as auth_on_unload
 def load():
     auth_on_load()
     get_map()
-    get_players()
+    # wait for authentication
+    Timer(5, get_players).start()
     print(f"[jtimer] Loaded!")
 
 
@@ -69,7 +75,9 @@ def get_map():
 
     else:
         print(f"[jtimer] Loaded map info for '{server.map_name}'!")
-        map_ = Map(map_info["tiers"]["soldier"])
+        map_ = Map(
+            map_info["id"], map_info["tiers"]["soldier"], map_info["tiers"]["demoman"]
+        )
 
         zones, response = map_zones(map_info["id"])
 
@@ -108,7 +116,17 @@ def get_map():
 def get_players():
     for p in PlayerIter():
         if not p.is_fake_client() and not p.is_hltv() and not p.is_bot():
-            player = Player(p.playerinfo, p.index)
+            api_player = add_player(
+                p.raw_steamid.to_steamid2(), p.playerinfo.name, "FI"
+            )
+            player = None
+            if api_player is not None:
+                player = Player(api_player["id"], p.playerinfo, p.index)
+            else:
+                player = Player(-1, p.playerinfo, p.index)
+
+            if not p.playerinfo.is_dead():
+                player.state.player_class = Player_Class(p.player_class)
             timer.add_player(player)
             if not p.playerinfo.is_dead:
                 player_start(player)
@@ -135,6 +153,18 @@ def player_start(player):
         player.state.timer_mode = Timer_Mode.NONE
 
     player.teleport_to_start()
+
+
+def api_add_player(playerinfo, index):
+    api_player = add_player(
+        SteamID.parse(playerinfo.steamid).to_steamid2(), playerinfo.name, "FI"
+    )
+    player = None
+    if api_player is not None:
+        player = Player(api_player["id"], playerinfo, index)
+    else:
+        player = Player(-1, playerinfo, index)
+    timer.add_player(player)
 
 
 @OnLevelInit
@@ -166,8 +196,7 @@ def on_client_active(index):
     if PlayerInfo.is_fake_client(playerinfo) or PlayerInfo.is_hltv(playerinfo):
         return
     if PlayerInfo.is_player(playerinfo):
-        player = Player(playerinfo, index)
-        timer.add_player(player)
+        Thread(target=api_add_player, args=(playerinfo, index)).start()
 
 
 @OnClientDisconnect
@@ -176,7 +205,7 @@ def on_client_disconnect(index):
     if PlayerInfo.is_fake_client(playerinfo) or PlayerInfo.is_hltv(playerinfo):
         return
     if PlayerInfo.is_player(playerinfo):
-        timer.remove_player(playerinfo.steamid)
+        timer.remove_player(SteamID.parse(playerinfo.steamid).to_steamid2())
 
 
 @TypedSayCommand("/timer")
@@ -185,7 +214,9 @@ def on_timer(command):
     if PlayerInfo.is_fake_client(playerinfo) or PlayerInfo.is_hltv(playerinfo):
         return
     if PlayerInfo.is_player(playerinfo):
-        timer.toggle_timer(command.index, playerinfo.steamid)
+        timer.toggle_timer(
+            command.index, SteamID.parse(playerinfo.steamid).to_steamid2()
+        )
 
     return CommandReturn.BLOCK
 
@@ -196,7 +227,7 @@ def on_restart(command):
     if PlayerInfo.is_fake_client(playerinfo) or PlayerInfo.is_hltv(playerinfo):
         return
     if PlayerInfo.is_player(playerinfo):
-        player = steamid_to_player(playerinfo.steamid)
+        player = steamid_to_player(SteamID.parse(playerinfo.steamid).to_steamid2())
         player.teleport_to_start()
 
     return CommandReturn.BLOCK
@@ -204,10 +235,14 @@ def on_restart(command):
 
 @Event("player_spawn")
 def on_player_spawn(game_event):
+    cancel_wait = ConVar(name="mp_waitingforplayers_cancel")
+    cancel_wait.set_bool(True)
+
     player = userid_to_player(game_event["userid"])
-    class_index = game_event["class"]
-    player.state.player_class = Player_Class(class_index)
-    player_start(player)
+    if player is not None:
+        class_index = game_event["class"]
+        player.state.player_class = Player_Class(class_index)
+        player_start(player)
 
 
 @Event("player_death")

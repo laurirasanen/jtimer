@@ -5,18 +5,18 @@ from threading import Timer
 from ..config import API_CFG
 
 # tokens
-access_token = None
-refresh_token = None
+_access_token = None
+_refresh_token = None
 
 # expiry times in seconds since epoch
-access_token_expires = None
-refresh_token_expires = None
+_access_token_expires = None
+_refresh_token_expires = None
 
 # threading.Timer for refreshing tokens
-refresh_timer = None
+_refresh_timer = None
 
 # how many seconds before expiry time to refresh tokens
-refresh_time_gap = 60
+_refresh_time_gap = 60
 
 
 def on_load():
@@ -35,14 +35,14 @@ def on_unload():
     if not API_CFG["authenticate"]:
         return
 
-    if access_token and time.time() < access_token_expires:
-        revoke_token(access_token, "access")
+    if _access_token and time.time() < _access_token_expires:
+        revoke_token(_access_token, "access")
 
-    if refresh_token and time.time() < refresh_token_expires:
-        revoke_token(refresh_token, "refresh")
+    if _refresh_token and time.time() < _refresh_token_expires:
+        revoke_token(_refresh_token, "refresh")
 
-    if refresh_timer:
-        refresh_timer.cancel()
+    if _refresh_timer:
+        _refresh_timer.cancel()
 
 
 def authenticate():
@@ -85,19 +85,19 @@ def authenticate():
         print("[jtimer] Authentication response is missing refresh_token_expires_in.")
         print(r.content)
 
-    global access_token, refresh_token, access_token_expires, refresh_token_expires
+    global _access_token, _refresh_token, _access_token_expires, _refresh_token_expires
     old_refresh = None
-    if refresh_token:
-        old_refresh = refresh_token
+    if _refresh_token:
+        old_refresh = _refresh_token
 
     old_access = None
-    if access_token:
-        old_access = access_token
+    if _access_token:
+        old_access = _access_token
 
-    access_token = data["access_token"]
-    refresh_token = data["refresh_token"]
-    access_token_expires = time.time() + data["access_token_expires_in"]
-    refresh_token_expires = time.time() + data["refresh_token_expires_in"]
+    _access_token = data["access_token"]
+    _refresh_token = data["refresh_token"]
+    _access_token_expires = time.time() + data["access_token_expires_in"]
+    _refresh_token_expires = time.time() + data["refresh_token_expires_in"]
 
     if old_refresh:
         revoke_token(old_refresh, "refresh")
@@ -118,7 +118,7 @@ def refresh_access():
 
     r = requests.post(
         API_CFG["host"] + "/token/refresh",
-        headers={"Authorization": f"Bearer {refresh_token}"},
+        headers={"Authorization": f"Bearer {_refresh_token}"},
     )
 
     if r.status_code != 200:
@@ -141,10 +141,10 @@ def refresh_access():
         print("[jtimer] Refresh response is missing expires_in.")
         print(r.content)
 
-    global access_token, access_token_expires
-    old_access = access_token
-    access_token = data["access_token"]
-    access_token_expires = time.time() + data["expires_in"]
+    global _access_token, _access_token_expires
+    old_access = _access_token
+    _access_token = data["access_token"]
+    _access_token_expires = time.time() + data["expires_in"]
 
     print("[jtimer] Refreshed access token.")
 
@@ -154,27 +154,27 @@ def refresh_access():
 
 def future_auth():
     """Start timer for refreshing access token, or authenticating again for a new refresh token."""
-    if access_token_expires and refresh_token_expires:
-        global refresh_timer
-        if access_token_expires < refresh_token_expires:
-            if refresh_timer:
-                refresh_timer.cancel()
+    if _access_token_expires and _refresh_token_expires:
+        global _refresh_timer
+        if _access_token_expires < _refresh_token_expires:
+            if _refresh_timer:
+                _refresh_timer.cancel()
 
-            delay = access_token_expires - time.time() - refresh_time_gap
+            delay = _access_token_expires - time.time() - _refresh_time_gap
             if delay > 0:
-                refresh_timer = Timer(delay, refresh_access)
-                refresh_timer.start()
+                _refresh_timer = Timer(delay, refresh_access)
+                _refresh_timer.start()
             else:
                 refresh_access()
 
         else:
-            if refresh_timer:
-                refresh_timer.cancel()
+            if _refresh_timer:
+                _refresh_timer.cancel()
 
-            delay = refresh_token_expires - time.time() - refresh_time_gap
+            delay = _refresh_token_expires - time.time() - _refresh_time_gap
             if delay > 0:
-                refresh_timer = Timer(delay, authenticate)
-                refresh_timer.start()
+                _refresh_timer = Timer(delay, authenticate)
+                _refresh_timer.start()
             else:
                 authenticate()
 
@@ -200,3 +200,7 @@ def revoke_token(token, token_type):
         return
 
     print(f"[jtimer] Revoked {token_type} token.")
+
+
+def get_token():
+    return _access_token

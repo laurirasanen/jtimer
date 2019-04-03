@@ -1,7 +1,7 @@
-from ..players.state import State, Run_State, Timer_Mode
-from ..chat.messages import message_timer_enable, message_timer_disable, message_prefix
-from ..helpers.converts import steamid_to_player, userid_to_source_player
-from ..map.map import Map
+from .players.state import State, Run_State, Timer_Mode
+from .chat.messages import message_timer_enable, message_timer_disable, message_prefix
+from .helpers.converts import steamid_to_player, userid_to_source_player
+from .map.map import Map
 
 players = []
 current_map = None

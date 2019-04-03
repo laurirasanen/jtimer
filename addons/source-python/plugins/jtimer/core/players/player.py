@@ -1,8 +1,10 @@
 from mathlib import Vector
 
+from steam import SteamID
+
 from .state import State
 from .state import Timer_Mode
-from ..timer import timer
+from .. import timer
 from ..helpers.converts import userid_to_source_player
 
 
@@ -10,9 +12,10 @@ NULL_VECTOR = Vector(0.0, 0.0, 0.0)
 
 
 class Player:
-    def __init__(self, playerinfo, index):
+    def __init__(self, id_, playerinfo, index):
+        self.id_ = id_
         self.userid = playerinfo.userid
-        self.steamid = playerinfo.steamid
+        self.steamid = SteamID.parse(playerinfo.steamid).to_steamid2()
         self.index = index
         self.name = playerinfo.name
         self.state = State(self)
