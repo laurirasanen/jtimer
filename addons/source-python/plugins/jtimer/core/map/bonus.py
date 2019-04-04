@@ -35,7 +35,7 @@ class Bonus(Segment):
                 player.state.previous_velocity,
                 (player.state.origin - player.state.previous_origin).length,
             )
-            start_time = server.tick - 1 + subtick
+            start_time = float(server.tick - 1 + subtick)
 
             player.state.bonus_state = Run_State.RUN
             player.state.bonus = (self, start_time)
@@ -54,7 +54,7 @@ class Bonus(Segment):
                 player.state.previous_velocity,
                 (player.state.origin - player.state.previous_origin).length,
             )
-            end_time = server.tick - 1 + subtick
+            end_time = float(server.tick - 1 + subtick)
 
             if player.state.bonus[0] == self:
                 player.state.bonus[2] = end_time
@@ -72,13 +72,13 @@ class Bonus(Segment):
                     return
 
             # enter checkpoint
-            subtick = self.start_zone.time_to_zone_edge(
+            subtick = checkpoint.time_to_zone_edge(
                 player.state.previous_center,
                 player.state.previous_extents,
                 player.state.previous_velocity,
                 (player.state.origin - player.state.previous_origin).length,
             )
-            enter_time = server.tick - 1 + subtick
+            enter_time = float(server.tick - 1 + subtick)
             player.state.checkpoints.append(checkpoint, enter_time)
 
             # TODO:

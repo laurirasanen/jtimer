@@ -12,7 +12,7 @@ from ..chat.messages import (
     message_checkpoint_enter_no_split,
     message_checkpoint_wrong_order,
     message_checkpoint_missed,
-    message_prefix,
+    message_points_gain,
 )
 from ..helpers.converts import ticks_to_timestamp
 from ..api.times import add_map_time
@@ -48,7 +48,7 @@ class Map(Segment):
                 (player.state.origin - player.state.previous_origin).length,
             )
             print(f"left start, subtick: {subtick}")
-            start_time = server.tick - 1 + subtick
+            start_time = float(server.tick - 1 + subtick)
 
             player.state.map_state = Run_State.RUN
             player.state.map[0] = self
@@ -84,11 +84,12 @@ class Map(Segment):
                 (player.state.origin - player.state.previous_origin).length,
             )
             print(f"entered end, subtick: {subtick}")
-            end_time = server.tick - 1 + subtick
+            end_time = float(server.tick - 1 + subtick)
 
             player.state.map[2] = end_time
             player.state.map_state = Run_State.END
             Thread(target=self.upload_map_time, args=(player,)).start()
+
 
     def upload_map_time(self, player):
         player_class = None
@@ -100,8 +101,17 @@ class Map(Segment):
             player_class = 4
             class_string = "demoman"
 
+        checkpoints = []
+        for checkpoint in player.state.checkpoints:
+            checkpoints.append({"cp_index": checkpoint[0].index, "time": checkpoint[1]})
+
         result = add_map_time(
-            self.id_, player.id_, player_class, player.state.map[1], player.state.map[2]
+            self.id_,
+            player.id_,
+            player_class,
+            player.state.map[1],
+            player.state.map[2],
+            checkpoints,
         )
 
         if result is None:
@@ -127,6 +137,11 @@ class Map(Segment):
                     player=player.name,
                     time=ticks_to_timestamp(result["duration"]),
                 )
+                if result["points_gained"] > 0:
+                    message_points_gain.send(
+                        player.index,
+                        points=result["points_gained"]
+                    )
                 return
 
         if result["rank"] == 1:
@@ -140,6 +155,11 @@ class Map(Segment):
                     result["records"][class_string] - result["duration"]
                 ),
             )
+            if result["points_gained"] > 0:
+                message_points_gain.send(
+                    player.index,
+                    points=result["points_gained"]
+                )
             return
 
         message_map_improvement.send(
@@ -154,6 +174,12 @@ class Map(Segment):
             rank=result["rank"],
             completions=result["completions"][class_string],
         )
+        if result["points_gained"] > 0:
+            message_points_gain.send(
+                player.index,
+                points=result["points_gained"]
+            )
+
 
     def on_enter_checkpoint(self, player, checkpoint):
         if (
@@ -178,13 +204,13 @@ class Map(Segment):
                 return
 
             # entered checkpoint
-            subtick = self.start_zone.time_to_zone_edge(
+            subtick = checkpoint.time_to_zone_edge(
                 player.state.previous_center,
                 player.state.previous_extents,
                 player.state.previous_velocity,
                 (player.state.origin - player.state.previous_origin).length,
             )
-            enter_time = server.tick - 1 + subtick
+            enter_time = float(server.tick - 1 + subtick)
             player.state.checkpoints.append((checkpoint, enter_time))
             message_checkpoint_enter_no_split.send(
                 player.index,

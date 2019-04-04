@@ -27,14 +27,21 @@ class State:
         self.course_state = Run_State.NONE
         self.bonus_state = Run_State.NONE
 
-        # (Segment, start_time, end_time)
-        self.checkpoints = []
+        # [[Segment, start_time, end_time]]
         self.courses = []
-        self.course_index = 0
+
+        # [Segment, start_time, end_time]
         self.bonus = [None, None, None]
-        self.bonus_index = 0
         self.map = [None, None, None]
+
+        # [(Checkpoint, enter_time)]
+        self.checkpoints = []
+
+        # Overlapping zones
         self.overlaps = []
+
+        self.bonus_index = 0
+        self.course_index = 0
 
     def reset(self):
         self.checkpoints = []
