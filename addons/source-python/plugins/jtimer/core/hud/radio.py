@@ -6,7 +6,7 @@ from menus.radio import PagedRadioMenu, PagedRadioOption
 from ..api.times import map_times
 from ..api.maps import map_info_name
 from ..helpers.converts import ticks_to_timestamp
-from ..chat.messages import messag_no_match
+from ..chat.messages import message_no_match
 
 """
 List for storing cached menus.
@@ -61,7 +61,7 @@ def show_map_menu(map_name, player_index):
 
 def _show_map_menu_callback(result, player_index):
     if result is False:
-        messag_no_match.send(player_index)
+        message_no_match.send(player_index)
 
 
 def _map_top_parent_menu(map_name, player_index):

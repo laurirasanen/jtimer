@@ -35,7 +35,7 @@ message_map_record_set = SayText2(chat_strings["map record set"])
 
 message_points_gain = SayText2(chat_strings["points gain"])
 
-messag_no_match = SayText2(chat_strings["no match"])
+message_no_match = SayText2(chat_strings["no match"])
 
 __all__ = (
     message_timer_enable,
@@ -50,7 +50,7 @@ __all__ = (
     message_map_record,
     message_map_record_set,
     message_points_gain,
-    messag_no_match,
+    message_no_match,
 )
 
 color_formats = {
