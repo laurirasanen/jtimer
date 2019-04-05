@@ -1,5 +1,4 @@
 from threading import Thread
-import json
 from engines.server import server
 
 from .segment import Segment
@@ -22,10 +21,11 @@ from ..timer import timer
 
 class Map(Segment):
     def __init__(
-        self, id_, stier=0, dtier=0, records={"soldier": None, "demoman": None}
+        self, id_, name, stier=0, dtier=0, records={"soldier": None, "demoman": None}
     ):
         super().__init__(stier, dtier)
         self.id_ = id_
+        self.name = name
         self.courses = []
         self.bonuses = []
         self.records = records
@@ -92,14 +92,14 @@ class Map(Segment):
 
             player.state.map[2] = end_time
             player.state.map_state = Run_State.END
-            # Thread(target=self.upload_map_time, args=(player,)).start()
+
             thread = MapTimeUploader(self.id_, player, self.upload_map_time_callback)
             thread.start()
 
     def upload_map_time_callback(self, result, player):
         if result is None:
             return
-        print(json.dumps(result, indent=4))
+
         class_string = None
         if player.state.player_class == Player_Class.SOLDIER:
             class_string = "soldier"

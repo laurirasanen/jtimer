@@ -6,18 +6,19 @@
 	> wr time
 	> spectators
 	
+- menus
+	- switching between soldier and demo times
+	- course/bonus times
+	- players
+	
 - api stuff:
+	- course and bonus times
 	- loading bonus/course data on map change
-		
-	- loading and saving player profiles
-	
-	- loading and saving times
-	
-	- loading and saving points and ranks
+	- loading player profiles
+	- loading times
+	- loading points and ranks
 
 - threading?
-
-- in-game menus
 
 - in-game admin zone editing, adding maps, etc.
 

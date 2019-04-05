@@ -37,6 +37,7 @@ from .core.api.maps import map_info_name
 from .core.api.zones import map_zones
 from .core.api.auth import on_load as auth_on_load, on_unload as auth_on_unload
 from .core.api.players import add_player
+from .core.hud.radio import show_map_menu
 
 # =============
 # >> GLOBALS
@@ -77,6 +78,7 @@ def get_map():
         print(f"[jtimer] Loaded map info for '{server.map_name}'!")
         map_ = Map(
             map_info["id"],
+            map_info["name"],
             map_info["tiers"]["soldier"],
             map_info["tiers"]["demoman"],
             map_info["records"],
@@ -220,6 +222,18 @@ def on_timer(command):
         Timer.instance().toggle_timer(
             command.index, SteamID.parse(playerinfo.steamid).to_steamid2()
         )
+
+    return CommandReturn.BLOCK
+
+
+@TypedSayCommand("/top")
+def on_top(command):
+    playerinfo = playerinfo_from_index(command.index)
+    if PlayerInfo.is_fake_client(playerinfo) or PlayerInfo.is_hltv(playerinfo):
+        return
+    if PlayerInfo.is_player(playerinfo):
+        if Timer.instance().current_map != None:
+            show_map_menu(Timer.instance().current_map.name, command.index)
 
     return CommandReturn.BLOCK
 
