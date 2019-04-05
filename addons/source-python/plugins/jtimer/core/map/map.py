@@ -1,5 +1,5 @@
 from threading import Thread
-
+import json
 from engines.server import server
 
 from .segment import Segment
@@ -92,36 +92,21 @@ class Map(Segment):
 
             player.state.map[2] = end_time
             player.state.map_state = Run_State.END
-            Thread(target=self.upload_map_time, args=(player,)).start()
+            # Thread(target=self.upload_map_time, args=(player,)).start()
+            thread = MapTimeUploader(self.id_, player, self.upload_map_time_callback)
+            thread.start()
 
-    def upload_map_time(self, player):
-        player_class = None
-        class_string = None
-        if player.state.player_class == Player_Class.SOLDIER:
-            player_class = 2
-            class_string = "soldier"
-        elif player.state.player_class == Player_Class.DEMOMAN:
-            player_class = 4
-            class_string = "demoman"
-
-        checkpoints = []
-        for checkpoint in player.state.checkpoints:
-            checkpoints.append({"cp_index": checkpoint[0].index, "time": checkpoint[1]})
-
-        result = add_map_time(
-            self.id_,
-            player.id_,
-            player_class,
-            player.state.map[1],
-            player.state.map[2],
-            checkpoints,
-        )
-
+    def upload_map_time_callback(self, result, player):
         if result is None:
             return
+        print(json.dumps(result, indent=4))
+        class_string = None
+        if player.state.player_class == Player_Class.SOLDIER:
+            class_string = "soldier"
+        elif player.state.player_class == Player_Class.DEMOMAN:
+            class_string = "demoman"
 
         self.records = result["records"]
-        timer.Timer.instance().current_map = self
 
         if result["result"] == 0:
             message_map_finish.send(
@@ -157,7 +142,7 @@ class Map(Segment):
                 split_type="WR",
                 split_sign="-",
                 split_time=ticks_to_timestamp(
-                    result["records"][class_string]["time"] - result["duration"]
+                    result["old_records"][class_string]["time"] - result["duration"]
                 ),
             )
             if result["points_gained"] > 0:
@@ -239,3 +224,34 @@ class Map(Segment):
                 index=checkpoint.index,
                 time=ticks_to_timestamp(relative_enter_time),
             )
+
+
+class MapTimeUploader(Thread):
+    def __init__(self, map_id, player, callback=None):
+        Thread.__init__(self)
+        self.map_id = map_id
+        self.player = player
+        self.callback = callback
+
+    def run(self):
+        player_class = None
+        if self.player.state.player_class == Player_Class.SOLDIER:
+            player_class = 2
+        elif self.player.state.player_class == Player_Class.DEMOMAN:
+            player_class = 4
+
+        checkpoints = []
+        for checkpoint in self.player.state.checkpoints:
+            checkpoints.append({"cp_index": checkpoint[0].index, "time": checkpoint[1]})
+
+        result = add_map_time(
+            self.map_id,
+            self.player.id_,
+            player_class,
+            self.player.state.map[1],
+            self.player.state.map[2],
+            checkpoints,
+        )
+
+        if self.callback is not None:
+            self.callback(result, self.player)
