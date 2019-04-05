@@ -1,7 +1,6 @@
 from enum import IntEnum
 import mathlib
 from engines.server import server
-from .. import timer
 from ..hud import hud
 
 
@@ -69,7 +68,7 @@ class State:
             return True
         return False
 
-    def update(self, origin, vecMinsMaxs, velocity):
+    def update(self, current_map, origin, vecMinsMaxs, velocity):
         # are we running?
         if self.running:
             if type(origin) != mathlib.Vector:
@@ -109,12 +108,12 @@ class State:
 
             to_check = []
             if self.timer_mode == Timer_Mode.MAP:
-                to_check.append(timer.current_map)
-                to_check.extend(timer.current_map.courses)
+                to_check.append(current_map)
+                to_check.extend(current_map.courses)
             elif self.timer_mode == Timer_Mode.COURSE:
-                to_check.append(timer.current_map.courses[self.course_index])
+                to_check.append(current_map.courses[self.course_index])
             if self.timer_mode == Timer_Mode.BONUS:
-                to_check.append(timer.current_map.bonuses[self.bonus_index])
+                to_check.append(current_map.bonuses[self.bonus_index])
 
             for segment in to_check:
                 # check start_zone
@@ -134,7 +133,7 @@ class State:
 
         # update hud every half a second
         if server.tick % 33 == 0:
-            hud.draw_timer(self.player_reference)
+            hud.draw_timer(self.player_reference, current_map)
 
 
 class Run_State(IntEnum):

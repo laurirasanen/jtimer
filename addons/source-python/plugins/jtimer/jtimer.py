@@ -1,7 +1,7 @@
 # =============
 # >> IMPORTS
 # =============
-from threading import Timer
+from threading import Timer as ThreadTimer
 from threading import Thread
 
 # Source.Python imports
@@ -24,7 +24,7 @@ from steam import SteamID
 from cvars import ConVar
 
 # Custom imports
-from .core import timer
+from .core.timer.timer import Timer
 from .core.chat import messages
 from .core.players.player import Player
 from .core.players.state import Player_Class, Timer_Mode
@@ -52,7 +52,7 @@ def load():
     auth_on_load()
     get_map()
     # wait for authentication
-    Timer(5, get_players).start()
+    ThreadTimer(2, get_players).start()
     print(f"[jtimer] Loaded!")
 
 
@@ -76,7 +76,10 @@ def get_map():
     else:
         print(f"[jtimer] Loaded map info for '{server.map_name}'!")
         map_ = Map(
-            map_info["id"], map_info["tiers"]["soldier"], map_info["tiers"]["demoman"]
+            map_info["id"],
+            map_info["tiers"]["soldier"],
+            map_info["tiers"]["demoman"],
+            map_info["records"],
         )
 
         zones, response = map_zones(map_info["id"])
@@ -110,7 +113,7 @@ def get_map():
                     map_.add_checkpoint(Checkpoint(z["cp_index"], p1, p2))
 
             print(f"[jtimer] Loaded zones for '{server.map_name}'!")
-            timer.current_map = map_
+            Timer.instance().current_map = map_
 
 
 def get_players():
@@ -127,7 +130,7 @@ def get_players():
 
             if not p.playerinfo.is_dead():
                 player.state.player_class = Player_Class(p.player_class)
-            timer.add_player(player)
+            Timer.instance().add_player(player)
             if not p.playerinfo.is_dead:
                 player_start(player)
 
@@ -140,7 +143,7 @@ def player_start(player):
         or player.state.player_class == Player_Class.DEMOMAN
     ):
         # enable timer if disabled and map zoned
-        if timer.current_map and timer.current_map.start_zone:
+        if Timer.instance().current_map and Timer.instance().current_map.start_zone:
             if player.state.timer_mode == Timer_Mode.NONE:
                 player.state.timer_mode = Timer_Mode.MAP
 
@@ -164,29 +167,29 @@ def api_add_player(playerinfo, index):
         player = Player(api_player["id"], playerinfo, index)
     else:
         player = Player(-1, playerinfo, index)
-    timer.add_player(player)
+    Timer.instance().add_player(player)
 
 
 @OnLevelInit
 def on_level_init(level):
-    timer.clear()
+    Timer.instance().clear()
     get_map()
     get_players()
 
 
 @OnLevelEnd
 def on_level_end():
-    timer.clear()
+    Timer.instance().clear()
 
 
 @OnTick
 def on_tick():
-    timer.update_timers()
+    Timer.instance().update_timers()
     if server.tick % 67 == 0:
-        if timer.current_map:
-            timer.current_map.start_zone.draw()
-            timer.current_map.end_zone.draw()
-            for checkpoint in timer.current_map.checkpoints:
+        if Timer.instance().current_map:
+            Timer.instance().current_map.start_zone.draw()
+            Timer.instance().current_map.end_zone.draw()
+            for checkpoint in Timer.instance().current_map.checkpoints:
                 checkpoint.draw()
 
 
@@ -205,7 +208,7 @@ def on_client_disconnect(index):
     if PlayerInfo.is_fake_client(playerinfo) or PlayerInfo.is_hltv(playerinfo):
         return
     if PlayerInfo.is_player(playerinfo):
-        timer.remove_player(SteamID.parse(playerinfo.steamid).to_steamid2())
+        Timer.instance().remove_player(SteamID.parse(playerinfo.steamid).to_steamid2())
 
 
 @TypedSayCommand("/timer")
@@ -214,7 +217,7 @@ def on_timer(command):
     if PlayerInfo.is_fake_client(playerinfo) or PlayerInfo.is_hltv(playerinfo):
         return
     if PlayerInfo.is_player(playerinfo):
-        timer.toggle_timer(
+        Timer.instance().toggle_timer(
             command.index, SteamID.parse(playerinfo.steamid).to_steamid2()
         )
 

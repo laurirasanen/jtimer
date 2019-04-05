@@ -4,7 +4,7 @@ from steam import SteamID
 
 from .state import State
 from .state import Timer_Mode
-from .. import timer
+from ..timer.timer import Timer
 from ..helpers.converts import userid_to_source_player
 
 
@@ -40,8 +40,8 @@ class Player:
     def tp_map_start(self):
         """Teleport to map start.
         Return True on success"""
-        if timer.current_map and timer.current_map.start_zone:
-            start_zone = timer.current_map.start_zone
+        if Timer.instance().current_map and Timer.instance().current_map.start_zone:
+            start_zone = Timer.instance().current_map.start_zone
             start = Vector(
                 start_zone.center[0],
                 start_zone.center[1],

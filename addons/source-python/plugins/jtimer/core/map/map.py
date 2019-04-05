@@ -9,6 +9,7 @@ from ..chat.messages import (
     message_map_record,
     message_map_finish,
     message_map_improvement,
+    message_checkpoint_enter,
     message_checkpoint_enter_no_split,
     message_checkpoint_wrong_order,
     message_checkpoint_missed,
@@ -16,15 +17,18 @@ from ..chat.messages import (
 )
 from ..helpers.converts import ticks_to_timestamp
 from ..api.times import add_map_time
-from .. import timer
+from ..timer import timer
 
 
 class Map(Segment):
-    def __init__(self, id_, stier=0, dtier=0):
+    def __init__(
+        self, id_, stier=0, dtier=0, records={"soldier": None, "demoman": None}
+    ):
         super().__init__(stier, dtier)
         self.id_ = id_
         self.courses = []
         self.bonuses = []
+        self.records = records
 
     def on_enter_start(self, player):
         if player.state.timer_mode == Timer_Mode.MAP:
@@ -90,7 +94,6 @@ class Map(Segment):
             player.state.map_state = Run_State.END
             Thread(target=self.upload_map_time, args=(player,)).start()
 
-
     def upload_map_time(self, player):
         player_class = None
         class_string = None
@@ -117,6 +120,9 @@ class Map(Segment):
         if result is None:
             return
 
+        self.records = result["records"]
+        timer.Timer.instance().current_map = self
+
         if result["result"] == 0:
             message_map_finish.send(
                 player.index,
@@ -125,7 +131,7 @@ class Map(Segment):
                 split_type="WR",
                 split_sign="+",
                 split_time=ticks_to_timestamp(
-                    result["duration"] - result["records"][class_string]
+                    result["duration"] - result["records"][class_string]["time"]
                 ),
             )
             return
@@ -139,8 +145,7 @@ class Map(Segment):
                 )
                 if result["points_gained"] > 0:
                     message_points_gain.send(
-                        player.index,
-                        points=result["points_gained"]
+                        player.index, points=result["points_gained"]
                     )
                 return
 
@@ -152,14 +157,11 @@ class Map(Segment):
                 split_type="WR",
                 split_sign="-",
                 split_time=ticks_to_timestamp(
-                    result["records"][class_string] - result["duration"]
+                    result["records"][class_string]["time"] - result["duration"]
                 ),
             )
             if result["points_gained"] > 0:
-                message_points_gain.send(
-                    player.index,
-                    points=result["points_gained"]
-                )
+                message_points_gain.send(player.index, points=result["points_gained"])
             return
 
         message_map_improvement.send(
@@ -169,17 +171,13 @@ class Map(Segment):
             split_type="WR",
             split_sign="+",
             split_time=ticks_to_timestamp(
-                result["duration"] - result["records"][class_string]
+                result["duration"] - result["records"][class_string]["time"]
             ),
             rank=result["rank"],
             completions=result["completions"][class_string],
         )
         if result["points_gained"] > 0:
-            message_points_gain.send(
-                player.index,
-                points=result["points_gained"]
-            )
-
+            message_points_gain.send(player.index, points=result["points_gained"])
 
     def on_enter_checkpoint(self, player, checkpoint):
         if (
@@ -212,8 +210,32 @@ class Map(Segment):
             )
             enter_time = float(server.tick - 1 + subtick)
             player.state.checkpoints.append((checkpoint, enter_time))
+
+            class_string = None
+            if player.state.player_class == Player_Class.SOLDIER:
+                class_string = "soldier"
+            elif player.state.player_class == Player_Class.DEMOMAN:
+                class_string = "demoman"
+
+            relative_enter_time = enter_time - player.state.map[1]
+
+            if self.records[class_string] is not None:
+                for record_checkpoint in self.records[class_string]["checkpoints"]:
+                    if record_checkpoint["cp_index"] is checkpoint.index:
+                        split_time = relative_enter_time - record_checkpoint["time"]
+                        split_sign = "+" if split_time > 0 else "-"
+                        message_checkpoint_enter.send(
+                            player.index,
+                            index=checkpoint.index,
+                            time=ticks_to_timestamp(relative_enter_time),
+                            split_type="WR",
+                            split_sign=split_sign,
+                            split_time=ticks_to_timestamp(split_time),
+                        )
+                        return
+
             message_checkpoint_enter_no_split.send(
                 player.index,
                 index=checkpoint.index,
-                time=ticks_to_timestamp(enter_time - player.state.map[1]),
+                time=ticks_to_timestamp(relative_enter_time),
             )

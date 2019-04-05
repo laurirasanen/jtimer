@@ -3,13 +3,13 @@ import math
 from players.dictionary import PlayerDictionary
 from engines.server import server
 
-from .. import timer
+from ..timer import timer
 
 player_instances = PlayerDictionary()
 
 
 def steamid_to_player(steamid):
-    for p in timer.players:
+    for p in timer.Timer.instance().players:
         if p.steamid == steamid:
             return p
     return None
@@ -25,6 +25,8 @@ def userid_to_source_player(userid):
 
 
 def ticks_to_timestamp(ticks):
+    ticks = abs(ticks)
+
     milliseconds, seconds = math.modf(ticks * server.tick_interval)
     minutes = math.floor(seconds / 60)
     hours = math.floor(minutes / 60)

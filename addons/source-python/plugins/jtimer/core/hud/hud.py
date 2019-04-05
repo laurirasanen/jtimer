@@ -5,7 +5,7 @@ from engines.server import server
 from ..players import state
 
 
-def draw_timer(player):
+def draw_timer(player, current_map):
     # lines for timer hud
     time_line = ""
     zone_line = ""
@@ -67,11 +67,30 @@ def draw_timer(player):
     # show last checkpoint if player has any
     if player.state.running:
         if len(player.state.checkpoints) > 0:
-            # TODO: wr / pr splits
-            # just prints the time since the map started now
             last_cp = player.state.checkpoints[-1]
+
+            class_string = None
+            if player.state.player_class == state.Player_Class.SOLDIER:
+                class_string = "soldier"
+            elif player.state.player_class == state.Player_Class.DEMOMAN:
+                class_string = "demoman"
+
+            split_line = ticks_to_timestamp(last_cp[1] - player.state.map[1])
+
+            if current_map.records[class_string] is not None:
+                for record_checkpoint in current_map.records[class_string][
+                    "checkpoints"
+                ]:
+                    if record_checkpoint["cp_index"] == last_cp[0].index:
+                        split_time = (
+                            last_cp[1] - player.state.map[1] - record_checkpoint["time"]
+                        )
+                        split_sign = "+" if split_time > 0 else "-"
+                        split_line = f"WR{split_sign}{ticks_to_timestamp(split_time)}"
+                        break
+
             cp_line = " (cp" + str(last_cp[0].index) + ": "
-            cp_line += ticks_to_timestamp(last_cp[1] - player.state.map[1])
+            cp_line += split_line
             cp_line += ")"
 
     # combine lines
