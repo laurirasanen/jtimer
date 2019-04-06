@@ -1,8 +1,39 @@
-from players.helpers import index_from_userid
-from ..helpers.converts import ticks_to_timestamp
-from messages import HintText
+from messages import HintText, KeyHintText
 from engines.server import server
+from players.entity import Player
+from players.helpers import index_from_userid
+
+from ..helpers.converts import ticks_to_timestamp
 from ..players import state
+from ..helpers.utils import returnSpectators
+
+bufferWhiteSpace = "\n\n\n\n\n\n"
+
+def draw(player, current_map):
+    draw_timer(player, current_map)
+    draw_rightHud(player, current_map)
+
+def draw_rightHud(player, current_map):
+    currentPlayer = index_from_userid(player.userid)    
+    spectators = "Spectators: " + returnSpectators(currentPlayer)
+
+    if Player(currentPlayer).is_observer():
+        #Display hud of other player?
+        pass
+    else:
+        if (player.state.player_class == state.Player_Class.SOLDIER):
+            currentClass = "soldier"
+        elif (player.state.player_class == state.Player_Class.DEMOMAN):
+            currentClass = "demoman"
+
+
+        if current_map.records[currentClass] is not None:
+            wr = "World Record:\n" + current_map.records[currentClass]["player"]["name"] + " - " + str(ticks_to_timestamp(current_map.records[currentClass]["time"]) + "\n")
+        else:
+            wr = "World Record:\nNone\n"
+
+        rightHint = KeyHintText(wr + "\n" + spectators + bufferWhiteSpace)
+        rightHint.send(currentPlayer)
 
 
 def draw_timer(player, current_map):
@@ -22,7 +53,7 @@ def draw_timer(player, current_map):
 
         if player.state.map_state == state.Run_State.START:
             zone_line = "[Map Start]"
-            time_line = "jump_mapname"
+            time_line = current_map.name
 
         elif player.state.map_state == state.Run_State.RUN:
             zone_line = "[Map]"

@@ -133,7 +133,7 @@ class State:
 
         # update hud every half a second
         if server.tick % 33 == 0:
-            hud.draw_timer(self.player_reference, current_map)
+            hud.draw(self.player_reference, current_map)
 
 
 class Run_State(IntEnum):
