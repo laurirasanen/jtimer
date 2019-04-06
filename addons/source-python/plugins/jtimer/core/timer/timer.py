@@ -53,6 +53,9 @@ class Timer:
         """update all timers of active players"""
         for p in self.players:
             source_player = userid_to_source_player(p.userid)
+            if source_player is None:
+                self.players.remove(p)
+                continue
             p.state.update(
                 self.current_map,
                 source_player.origin,

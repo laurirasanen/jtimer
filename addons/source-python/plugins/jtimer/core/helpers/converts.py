@@ -21,7 +21,10 @@ def userid_to_player(userid):
 
 
 def userid_to_source_player(userid):
-    return player_instances.from_userid(userid)
+    try:
+        return player_instances.from_userid(userid)
+    except ValueError:
+        return None
 
 
 def ticks_to_timestamp(ticks):

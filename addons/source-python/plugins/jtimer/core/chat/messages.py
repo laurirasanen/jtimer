@@ -37,6 +37,9 @@ message_points_gain = SayText2(chat_strings["points gain"])
 
 message_no_match = SayText2(chat_strings["no match"])
 
+message_player_join = SayText2(chat_strings["player join"])
+message_player_join_unranked = SayText2(chat_strings["player join unranked"])
+
 __all__ = (
     message_timer_enable,
     message_timer_disable,
@@ -51,6 +54,8 @@ __all__ = (
     message_map_record_set,
     message_points_gain,
     message_no_match,
+    message_player_join,
+    message_player_join_unranked,
 )
 
 color_formats = {
