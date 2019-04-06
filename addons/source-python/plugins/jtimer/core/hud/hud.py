@@ -26,7 +26,6 @@ def draw_rightHud(player, current_map):
         elif (player.state.player_class == state.Player_Class.DEMOMAN):
             currentClass = "demoman"
 
-
         if current_map.records[currentClass] is not None:
             wr = "World Record:\n" + current_map.records[currentClass]["player"]["name"] + " - " + str(ticks_to_timestamp(current_map.records[currentClass]["time"]) + "\n")
         else:
@@ -42,6 +41,9 @@ def draw_timer(player, current_map):
     zone_line = ""
     mode_line = ""
     cp_line = ""
+
+    if player.state.map_state == state.Run_State.NONE:
+        return
 
     if player.state.timer_mode == state.Timer_Mode.NONE:
         hintText = HintText("Timer Disabled")
