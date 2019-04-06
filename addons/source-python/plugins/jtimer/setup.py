@@ -10,5 +10,11 @@ if __name__ == "__main__":
     assert platform.architecture()[0] == "32bit"
 
     with open("requirements.txt") as requirements:
-        for package in requirements.readlines():
-            pipmain(["install", "-t", "../../packages/site-packages/", package])
+        pipmain(
+            [
+                "install",
+                "-t",
+                "../../packages/site-packages/",
+                *requirements.readlines(),
+            ]
+        )
