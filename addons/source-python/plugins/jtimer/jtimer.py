@@ -30,6 +30,7 @@ from .core.players.player import Player
 from .core.players.state import Player_Class, Timer_Mode
 from .core.players.state import State
 from .core.helpers.converts import userid_to_player, steamid_to_player
+from .core.helpers.utils import isPlayer
 from .core.map.map import Map
 from .core.map.checkpoint import Checkpoint
 from .core.zones.zone import Zone
@@ -198,27 +199,24 @@ def on_tick():
 @OnClientActive
 def on_client_active(index):
     playerinfo = playerinfo_from_index(index)
-    if PlayerInfo.is_fake_client(playerinfo) or PlayerInfo.is_hltv(playerinfo):
-        return
-    if PlayerInfo.is_player(playerinfo):
+    if isPlayer(playerinfo):
         Thread(target=api_add_player, args=(playerinfo, index)).start()
-
+    else:
+        return
 
 @OnClientDisconnect
 def on_client_disconnect(index):
     playerinfo = playerinfo_from_index(index)
-    if PlayerInfo.is_fake_client(playerinfo) or PlayerInfo.is_hltv(playerinfo):
-        return
-    if PlayerInfo.is_player(playerinfo):
+    if isPlayer(playerinfo):
         Timer.instance().remove_player(SteamID.parse(playerinfo.steamid).to_steamid2())
-
+    else:
+        return
 
 @TypedSayCommand("/timer")
 def on_timer(command):
     playerinfo = playerinfo_from_index(command.index)
-    if PlayerInfo.is_fake_client(playerinfo) or PlayerInfo.is_hltv(playerinfo):
-        return
-    if PlayerInfo.is_player(playerinfo):
+
+    if isPlayer(playerinfo):
         Timer.instance().toggle_timer(
             command.index, SteamID.parse(playerinfo.steamid).to_steamid2()
         )
@@ -229,9 +227,7 @@ def on_timer(command):
 @TypedSayCommand("/top")
 def on_top(command):
     playerinfo = playerinfo_from_index(command.index)
-    if PlayerInfo.is_fake_client(playerinfo) or PlayerInfo.is_hltv(playerinfo):
-        return
-    if PlayerInfo.is_player(playerinfo):
+    if isPlayer(playerinfo):
         if Timer.instance().current_map != None:
             show_map_menu(Timer.instance().current_map.name, command.index)
 
@@ -241,9 +237,7 @@ def on_top(command):
 @TypedSayCommand("/r")
 def on_restart(command):
     playerinfo = playerinfo_from_index(command.index)
-    if PlayerInfo.is_fake_client(playerinfo) or PlayerInfo.is_hltv(playerinfo):
-        return
-    if PlayerInfo.is_player(playerinfo):
+    if isPlayer(playerinfo):
         player = steamid_to_player(SteamID.parse(playerinfo.steamid).to_steamid2())
         player.teleport_to_start()
 
