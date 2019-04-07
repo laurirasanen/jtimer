@@ -1,6 +1,9 @@
 from enum import IntEnum
 import mathlib
 from engines.server import server
+from players.entity import Player
+from players.helpers import index_from_userid
+
 from ..hud import hud
 
 
@@ -131,6 +134,13 @@ class State:
                     if cp.is_overlapping(self.center, self.extents):
                         segment.on_enter_checkpoint(self.player_reference, cp)
 
+        # If player is spec, reset and blank timer/modes
+        if Player(index_from_userid(self.player_reference.userid)).is_observer():
+            self.reset()
+            self.timer_mode = Timer_Mode.NONE
+            self.map_state = Run_State.NONE
+            self.course_state = Run_State.NONE
+            self.bonus_state = Run_State.NONE
         # update hud every half a second
         if server.tick % 33 == 0:
             hud.draw(self.player_reference, current_map)

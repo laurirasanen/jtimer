@@ -11,11 +11,17 @@ bufferWhiteSpace = "\n\n\n\n\n\n"
 
 
 def draw(player, current_map):
-    draw_timer(player, current_map)
-    draw_rightHud(player, current_map)
+    currentPlayer = index_from_userid(player.userid)
+    if Player(currentPlayer).is_observer():
+        # Hud will be drawn by other player
+        pass
+    else:
+        specIndexes = returnSpectators(currentPlayer, "index")
+        draw_timer(player, current_map, specIndexes)
+        draw_rightHud(player, current_map, specIndexes)
 
 
-def draw_rightHud(player, current_map):
+def draw_rightHud(player, current_map, specIndexes):
     currentPlayer = index_from_userid(player.userid)
     spectators = "Spectators: " + returnSpectators(currentPlayer)
 
@@ -41,10 +47,10 @@ def draw_rightHud(player, current_map):
             wr = "World Record:\nNone\n"
 
         rightHint = KeyHintText(wr + "\n" + spectators + bufferWhiteSpace)
-        rightHint.send(currentPlayer)
+        rightHint.send(currentPlayer, specIndexes)
 
 
-def draw_timer(player, current_map):
+def draw_timer(player, current_map, specIndexes):
     # lines for timer hud
     time_line = ""
     zone_line = ""

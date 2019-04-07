@@ -3,7 +3,7 @@ from geolite2 import geolite2
 from filters.players import PlayerIter
 from players.entity import Player
 from players import PlayerInfo
-from players.helpers import index_from_playerinfo
+from players.helpers import index_from_playerinfo, index_from_userid
 
 
 def is_player(player):
@@ -37,8 +37,12 @@ def returnSpectators(playerIndex, formatType="name"):
             last = specList.pop()
             return specList.join(", ") + " & " + last
 
-    else:
+    elif formatType == "count":
         return str(len(specList))
+    else:
+        for player in spectators:
+            specList.append(index_from_userid(player.userid))
+        return specList
 
 
 def get_players():
