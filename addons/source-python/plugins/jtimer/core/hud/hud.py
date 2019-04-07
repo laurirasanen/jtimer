@@ -163,5 +163,4 @@ def draw_timer(player, current_map, specIndexes):
     hintText = HintText(combined)
 
     # draw
-    hintText.send(index_from_userid(player.userid))
-    # TODO: handle spectators
+    hintText.send(index_from_userid(player.userid), specIndexes)
