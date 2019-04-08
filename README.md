@@ -27,11 +27,6 @@ jtimer is a [Source.Python](https://github.com/Source-Python-Dev-Team/Source.Pyt
 jtimer uses [Black](https://github.com/ambv/black) for code formatting. Contributors should follow the same style guidelines to maintain consistency and readability of the codebase.
 
 # Contributors
-[Yoeri Poels](https://github.com/yoeripoels)  
-[Lauri Räsänen](https://github.com/laurirasanen)  
-[lcorb](https://github.com/lcorb)
-
-## Contributors
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
