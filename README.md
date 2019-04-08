@@ -1,5 +1,5 @@
 # jtimer
-[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors)
 jtimer is a [Source.Python](https://github.com/Source-Python-Dev-Team/Source.Python) speedrun timer plugin for TF2. Other Source games might work but have not been tested. jtimer is fully open source and welcomes contributors.
 
 # Features
@@ -32,7 +32,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore -->
-<table><tr><td align="center"><a href="https://github.com/yoeripoels"><img src="https://avatars0.githubusercontent.com/u/23634707?v=4" width="100px;" alt="Yoeri Poels"/><br /><sub><b>Yoeri Poels</b></sub></a><br /><a href="https://github.com/occasionally-cool/jtimer/commits?author=yoeripoels" title="Code">💻</a></td><td align="center"><a href="https://laurirasanen.github.io/"><img src="https://avatars3.githubusercontent.com/u/26773737?v=4" width="100px;" alt="Lauri Räsänen"/><br /><sub><b>Lauri Räsänen</b></sub></a><br /><a href="https://github.com/occasionally-cool/jtimer/commits?author=laurirasanen" title="Code">💻</a></td></tr></table>
+<table><tr><td align="center"><a href="https://github.com/yoeripoels"><img src="https://avatars0.githubusercontent.com/u/23634707?v=4" width="100px;" alt="Yoeri Poels"/><br /><sub><b>Yoeri Poels</b></sub></a><br /><a href="https://github.com/occasionally-cool/jtimer/commits?author=yoeripoels" title="Code">💻</a></td><td align="center"><a href="https://laurirasanen.github.io/"><img src="https://avatars3.githubusercontent.com/u/26773737?v=4" width="100px;" alt="Lauri Räsänen"/><br /><sub><b>Lauri Räsänen</b></sub></a><br /><a href="https://github.com/occasionally-cool/jtimer/commits?author=laurirasanen" title="Code">💻</a></td><td align="center"><a href="https://github.com/lcorb"><img src="https://avatars2.githubusercontent.com/u/37372414?v=4" width="100px;" alt="lcorb"/><br /><sub><b>lcorb</b></sub></a><br /><a href="https://github.com/occasionally-cool/jtimer/commits?author=lcorb" title="Code">💻</a></td></tr></table>
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
