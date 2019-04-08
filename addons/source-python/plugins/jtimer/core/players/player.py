@@ -8,7 +8,7 @@ from .state import Timer_Mode, Player_Class
 from ..timer.timer import Timer
 from ..helpers.converts import userid_to_source_player
 from ..helpers.utils import get_player_indices, get_country
-from ..api.players import add_player as api_add_player
+from ..api.players import add_player as api_add_player, search_player as api_search_player
 from ..chat.messages import message_player_join, message_player_join_unranked
 
 
@@ -86,9 +86,15 @@ class Player:
         ip = address_from_playerinfo(playerinfo).split(":")[0]
         country, code = get_country(ip)
 
-        api_player = api_add_player(
-            SteamID.parse(playerinfo.steamid).to_steamid2(), playerinfo.name, code
-        )
+        api_player = None
+        if API_CFG["authenticate"]:
+            api_player = api_add_player(
+                SteamID.parse(playerinfo.steamid).to_steamid2(), playerinfo.name, code
+            )
+        else:
+            # Don't try to update or add player to api
+            api_player = api_search_player(steamid=SteamID.parse(playerinfo.steamid).to_steamid2())
+
         player = None
         if api_player is not None:
             player = Player(api_player["id"], playerinfo, index)
@@ -102,6 +108,10 @@ class Player:
 
         Timer.instance().add_player(player)      
 
+        if api_player is None:
+            return
+
+        # Send join message
         srank = api_player["rank_info"].get("soldier_rank")
         drank = api_player["rank_info"].get("demoman_rank")
 

@@ -1,6 +1,8 @@
-from pip._internal import main as pipmain
+"""Setup script for installing jtimer requirements."""
+
 import sys
 import platform
+from pip._internal import main as pipmain
 
 if __name__ == "__main__":
     # make sure we're running same python version as SP

@@ -3,6 +3,7 @@ import time
 from threading import Timer
 
 from ..config import API_CFG
+from ..helpers.utils import get_players
 
 # tokens
 _access_token = None
@@ -20,12 +21,13 @@ _refresh_time_gap = 60
 
 
 def on_load():
-    """Call this on plugin load to enable authentication with the api."""
+    """Call this on plugin load to authenticate with the api."""
 
-    if not API_CFG["authenticate"]:
-        return
-
-    authenticate()
+    if API_CFG["authenticate"]:
+        authenticate()
+    
+    for player in get_players():
+        Player.add_player(player.playerinfo, player.index)
 
 
 def on_unload():

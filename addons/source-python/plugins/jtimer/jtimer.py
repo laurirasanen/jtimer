@@ -1,8 +1,8 @@
+"""Main module for jtimer plugin."""
+
 # =============
 # >> IMPORTS
 # =============
-from threading import Timer as ThreadTimer
-from threading import Thread
 
 # Source.Python imports
 from commands.typed import TypedSayCommand
@@ -27,7 +27,6 @@ from .core.zones.zone import Zone
 from .core.api.maps import map_info_name
 from .core.api.zones import map_zones
 from .core.api.auth import on_load as auth_on_load, on_unload as auth_on_unload
-from .core.api.players import add_player as api_add_player
 from .core.hud.radio import show_map_menu
 from .core.hooks import *
 
@@ -35,18 +34,10 @@ from .core.hooks import *
 # >> FUNCTIONS
 # =============
 
-
 def load():
-    auth_on_load()
     Map.get_map()
-    # wait for authentication
-    ThreadTimer(2, add_players).start()
-    print(f"[jtimer] Loaded!")
-
-
-def add_players():
-    for player in get_players():
-        Player.add_player(player.playerinfo, player.index)
+    auth_on_load()    
+    print(f"[jtimer] Loaded!")    
 
 
 def unload():
@@ -70,7 +61,7 @@ def on_timer(command):
 def on_top(command):
     playerinfo = playerinfo_from_index(command.index)
     if is_player(playerinfo):
-        if Timer.instance().current_map != None:
+        if Timer.instance().current_map is not None:
             show_map_menu(Timer.instance().current_map.name, command.index)
 
     return CommandReturn.BLOCK
