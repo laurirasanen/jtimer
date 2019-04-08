@@ -1,16 +1,31 @@
+"""Module for holding Player's state."""
+
+# =============================================================================
+# >> IMPORTS
+# =============================================================================
+# Python Imports
 from enum import IntEnum
+
+# Source.Python Imports
 import mathlib
 from engines.server import server
 from players.entity import Player
 from players.helpers import index_from_userid
 
+# Custom Imports
 from ..hud import hud
 
 
+# =============================================================================
+# >> STATE CLASS
+# =============================================================================
 class State:
+    """Class for Player state."""
+
     def __init__(self, player):
+        """Create a new State."""
         self.player_reference = player
-        self.player_class = Player_Class.NONE
+        self.player_class = PlayerClass.NONE
 
         self.origin = mathlib.NULL_VECTOR
         self.center = mathlib.NULL_VECTOR
@@ -24,10 +39,10 @@ class State:
         self.previous_bounds = self.bounds
         self.previous_velocity = self.velocity
 
-        self.timer_mode = Timer_Mode.NONE
-        self.map_state = Run_State.NONE
-        self.course_state = Run_State.NONE
-        self.bonus_state = Run_State.NONE
+        self.timer_mode = TimerMode.NONE
+        self.map_state = RunState.NONE
+        self.course_state = RunState.NONE
+        self.bonus_state = RunState.NONE
 
         # [[Segment, start_time, end_time]]
         self.courses = []
@@ -46,6 +61,7 @@ class State:
         self.course_index = 0
 
     def reset(self):
+        """Reset state."""
         self.checkpoints = []
         self.courses = []
         self.bonus = [None, None, None]
@@ -67,11 +83,14 @@ class State:
         self.previous_velocity = self.velocity
 
     def running(self):
-        if self.timer_mode != Timer_Mode.NONE:
+        """Returns True if player is currently running."""
+        if self.timer_mode != TimerMode.NONE:
             return True
         return False
 
-    def update(self, current_map, origin, vecMinsMaxs, velocity):
+    def update(self, current_map, origin, vec_mins_maxs, velocity):
+        """Update player state."""
+
         # are we running?
         if self.running:
             if type(origin) != mathlib.Vector:
@@ -80,9 +99,9 @@ class State:
                 )
                 return
 
-            if type(vecMinsMaxs) != mathlib.Vector:
+            if type(vec_mins_maxs) != mathlib.Vector:
                 print(
-                    f"ERR: Trying to update Player State but vecMinsMaxs is not Type(mathlib.Vector)!"
+                    f"ERR: Trying to update Player State but vec_mins_maxs is not Type(mathlib.Vector)!"
                 )
                 return
 
@@ -90,17 +109,17 @@ class State:
             self.origin = origin
 
             self.previous_extents = self.extents
-            self.extents = vecMinsMaxs
+            self.extents = vec_mins_maxs
             self.extents[2] /= 2
 
             self.previous_bounds = self.bounds
-            self.bounds[0] = origin + vecMinsMaxs
-            self.bounds[1] = origin - vecMinsMaxs
-            self.bounds[1][2] += vecMinsMaxs[2]
+            self.bounds[0] = origin + vec_mins_maxs
+            self.bounds[1] = origin - vec_mins_maxs
+            self.bounds[1][2] += vec_mins_maxs[2]
 
             self.previous_center = self.center
             self.center = self.origin
-            self.center[2] += vecMinsMaxs[2] / 2
+            self.center[2] += vec_mins_maxs[2] / 2
 
             self.previous_velocity = self.velocity
             self.velocity = velocity
@@ -110,12 +129,12 @@ class State:
                 return
 
             to_check = []
-            if self.timer_mode == Timer_Mode.MAP:
+            if self.timer_mode == TimerMode.MAP:
                 to_check.append(current_map)
                 to_check.extend(current_map.courses)
-            elif self.timer_mode == Timer_Mode.COURSE:
+            elif self.timer_mode == TimerMode.COURSE:
                 to_check.append(current_map.courses[self.course_index])
-            if self.timer_mode == Timer_Mode.BONUS:
+            if self.timer_mode == TimerMode.BONUS:
                 to_check.append(current_map.bonuses[self.bonus_index])
 
             for segment in to_check:
@@ -137,32 +156,40 @@ class State:
         # If player is spec, reset and blank timer/modes
         if Player(index_from_userid(self.player_reference.userid)).is_observer():
             self.reset()
-            self.timer_mode = Timer_Mode.NONE
-            self.map_state = Run_State.NONE
-            self.course_state = Run_State.NONE
-            self.bonus_state = Run_State.NONE
+            self.timer_mode = TimerMode.NONE
+            self.map_state = RunState.NONE
+            self.course_state = RunState.NONE
+            self.bonus_state = RunState.NONE
         # update hud every half a second
         if server.tick % 33 == 0:
             hud.draw(self.player_reference, current_map)
 
 
-class Run_State(IntEnum):
+# =============================================================================
+# >> ENUMS
+# =============================================================================
+class RunState(IntEnum):
+    """Enum for run states."""
+
     NONE = 0
     START = 1
     RUN = 2
     END = 3
 
 
-class Timer_Mode(IntEnum):
+class TimerMode(IntEnum):
+    """Enum for Timer modes."""
+
     NONE = 0
     MAP = 1
     COURSE = 2
     BONUS = 3
 
 
-class Player_Class(IntEnum):
-    """Source.Python returns silly values for class indices"""
+class PlayerClass(IntEnum):
+    """Enum for player classes."""
 
+    # Source.Python returns silly values for class indices
     NONE = 0
     SCOUT = 1
     SOLDIER = 3

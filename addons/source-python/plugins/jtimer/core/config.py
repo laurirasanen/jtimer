@@ -1,12 +1,22 @@
+"""Module for parsing and holding plugin config."""
+
+# =============================================================================
+# >> IMPORTS
+# =============================================================================
+# Python Imports
 from configparser import ConfigParser
 
+# Custom Imports
 from .constants.paths import CFG_PATH
 
-parser = ConfigParser()
+# =============================================================================
+# >> GLOBAL VARIABLES
+# =============================================================================
+PARSER = ConfigParser()
 
 CORE_CFG_FILE = CFG_PATH / "core.ini"
-parser.read(CORE_CFG_FILE)
-API_CFG = dict(parser.items("api"))
+PARSER.read(CORE_CFG_FILE)
+API_CFG = dict(PARSER.items("api"))
 
 # validate stuff
 assert "host" in API_CFG
@@ -14,7 +24,7 @@ assert "authenticate" in API_CFG
 
 # convert to bool
 try:
-    API_CFG["authenticate"] = parser.getboolean("api", "authenticate")
+    API_CFG["authenticate"] = PARSER.getboolean("api", "authenticate")
 except ValueError:
     API_CFG["authenticate"] = False
 

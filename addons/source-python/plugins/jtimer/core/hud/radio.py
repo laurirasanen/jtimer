@@ -1,13 +1,24 @@
+"""Module for radio menus."""
+
+# =============================================================================
+# >> IMPORTS
+# =============================================================================
+# Python Imports
 from threading import Thread
 from collections.abc import Iterable
-import json
+
+# Source.Python Imports
 from menus.radio import PagedRadioMenu, PagedRadioOption
 
+# Custom Imports
 from ..api.times import map_times
 from ..api.maps import map_info_name
 from ..helpers.converts import ticks_to_timestamp
 from ..chat.messages import message_no_match
 
+# =============================================================================
+# >> GLOBAL VARIABLES
+# =============================================================================
 """
 List for storing cached menus.
 Deleted from cache when all players have closed menu.
@@ -49,8 +60,11 @@ schema =
 _cached_map_menus = []
 
 
+# =============================================================================
+# >> FUNCTIONS
+# =============================================================================
 def show_map_menu(map_name, player_index):
-    """Show map times radio menu to player."""
+    """Show /top <map> radio menu to player."""
     thread = _ThreadWithCallback(
         target=_map_top_parent_menu,
         args=(map_name, player_index),
@@ -60,6 +74,7 @@ def show_map_menu(map_name, player_index):
 
 
 def _show_map_menu_callback(result, player_index):
+    """Callback for showing /top <map> menu."""
     if result is False:
         message_no_match.send(player_index)
 
@@ -104,6 +119,7 @@ def _map_top_parent_menu(map_name, player_index):
 
 
 def _map_parent_select(menu, player_index, selected_option):
+    """Callback for selecting value in /top <map> menu."""
     map_info = selected_option.value
 
     global _cached_map_menus
@@ -136,6 +152,7 @@ def _map_parent_select(menu, player_index, selected_option):
 
 
 def _map_parent_close(menu, player_index):
+    """Callback for closing /top <map> menu."""
     global _cached_map_menus
     for cached_menu in _cached_map_menus:
         if cached_menu["menu"] == menu:
@@ -143,7 +160,7 @@ def _map_parent_close(menu, player_index):
             _cached_map_menus.remove(cached_menu)
 
             new_cache["opened_by"].remove(player_index)
-            if len(new_cache["opened_by"]) == 0:
+            if not new_cache["opened_by"]:
                 # menu closed by all players, remove cache
                 del new_cache
             else:
@@ -197,10 +214,10 @@ def _map_top_menu(map_id, map_name):
 
 
 def _map_top_select(menu, player_index, selected_option):
+    """Callback for selecting a map time entry."""
     selected_value = selected_option.value
 
     global _cached_map_menus
-    map_time = None
     for cached_menu in _cached_map_menus:
         if cached_menu["map_id"] == selected_value[0]:
             new_cache = cached_menu.copy()
@@ -220,6 +237,7 @@ def _map_top_select(menu, player_index, selected_option):
 
 
 def _map_top_close(menu, player_index):
+    """Callback for closing map times menu."""
     global _cached_map_menus
     for cached_menu in _cached_map_menus:
         if cached_menu["map_top"]["menu"] == menu:
@@ -227,13 +245,14 @@ def _map_top_close(menu, player_index):
             _cached_map_menus.remove(cached_menu)
             new_cache["opened_by"].remove(player_index)
 
-            if len(new_cache["opened_by"]) == 0:
+            if not new_cache["opened_by"]:
                 del new_cache
             else:
                 _cached_map_menus.append(new_cache)
 
 
 def _map_time_menu(map_name, map_time):
+    """Constructor for map time entry."""
     data = None
 
     player_name = map_time["player"]["name"]
@@ -263,6 +282,7 @@ def _map_time_menu(map_name, map_time):
 
 
 def _map_time_close(menu, player_index):
+    """Callback for closing a map time entry."""
     global _cached_map_menus
     for cached_menu in _cached_map_menus:
         for map_time in cached_menu["map_top"]["map_times"]:
@@ -271,20 +291,24 @@ def _map_time_close(menu, player_index):
                 _cached_map_menus.remove(cached_menu)
                 new_cache["opened_by"].remove(player_index)
 
-                if len(new_cache["opened_by"]) == 0:
+                if not new_cache["opened_by"]:
                     del new_cache
                 else:
                     _cached_map_menus.append(new_cache)
 
 
 class _ThreadWithCallback(Thread):
+    """Class for creating threads with callbacks."""
+
     def __init__(self, target, args, callback=None):
+        """Create thread with callback."""
         Thread.__init__(self)
         self.target = target
         self.args = args
         self.callback = callback
 
     def run(self):
+        """Start thread execution."""
         result = None
         if isinstance(self.args, Iterable):
             result = self.target(*self.args)
@@ -298,4 +322,7 @@ class _ThreadWithCallback(Thread):
                 self.callback(result)
 
 
+# =============================================================================
+# >> ALL DECLARATION
+# =============================================================================
 __all__ = show_map_menu

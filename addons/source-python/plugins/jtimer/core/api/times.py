@@ -1,12 +1,23 @@
+"""Module for times related api functionality."""
+
+# =============================================================================
+# >> IMPORTS
+# =============================================================================
+# Python Imports
 import json
 import requests
 
+# Custom Imports
 from ..config import API_CFG
 from .auth import get_token
 
 
+# =============================================================================
+# >> FUNCTIONS
+# =============================================================================
 def map_times(map_id, start=1, limit=50):
-    """Get map times from the api"""
+    """Get map times from the api.
+    https://jtimer-api.readthedocs.io/en/latest/#get--times-map-(int-map_id)"""
     assert map_id > 0
     assert start > 0
     assert limit <= 50
@@ -22,15 +33,15 @@ def map_times(map_id, start=1, limit=50):
 
 
 def add_map_time(map_id, player_id, player_class, start_time, end_time, checkpoints=[]):
-    """Add time to map"""
+    """Add time to map.
+    https://jtimer-api.readthedocs.io/en/latest/#post--times-insert-map-(int-map_id)"""
     if not API_CFG["authenticate"]:
-        return
+        return None
 
     assert map_id > 0
     assert player_id > 0
     assert player_class in [2, 4]
-    assert start_time > 0
-    assert end_time > 0 and end_time > start_time
+    assert 0 < start_time < end_time
     assert isinstance(checkpoints, list)
     for checkpoint in checkpoints:
         cp_index = checkpoint.get("cp_index")
@@ -39,8 +50,7 @@ def add_map_time(map_id, player_id, player_class, start_time, end_time, checkpoi
         assert (
             cp_time is not None
             and isinstance(cp_time, float)
-            and cp_time > start_time
-            and cp_time < end_time
+            and end_time < cp_time < start_time
         )
 
     access_token = get_token()

@@ -1,12 +1,23 @@
+"""Module for assorted utility functions."""
+
+# =============================================================================
+# >> IMPORTS
+# =============================================================================
+# Python Imports
 from geolite2 import geolite2
 
+# Source.Python Imports
 from filters.players import PlayerIter
 from players.entity import Player
 from players import PlayerInfo
 from players.helpers import index_from_playerinfo, index_from_userid
 
 
+# =============================================================================
+# >> FUNCTIONS
+# =============================================================================
 def is_player(player):
+    """Check if Source.Python player or playerinfo belongs to a valid human player."""
     if isinstance(player, PlayerInfo):
         player = Player(index_from_playerinfo(player))
 
@@ -16,36 +27,40 @@ def is_player(player):
         or player.steamid == "BOT"
     ):
         return False
-    else:
-        return True
+
+    return True
 
 
-def returnSpectators(playerIndex, formatType="name"):
-    spectators = Player(playerIndex).spectators
-    specList = []
+def return_spectators(player_index, format_type="name"):
+    """Get a list of players spectators."""
+    spectators = Player(player_index).spectators
+    spec_list = []
     for player in spectators:
-        specList.append(player.name)
+        spec_list.append(player.name)
 
-    if formatType == "name":
-        if len(specList) == 0:
+    if format_type == "name":
+        if not spec_list:
             return "None"
-        if len(specList) == 1:
-            return specList[0]
-        elif len(specList) == 2:
-            return "%s & %s".format(specList[0], specList[1])
-        else:
-            last = specList.pop()
-            return specList.join(", ") + " & " + last
 
-    elif formatType == "count":
-        return str(len(specList))
-    else:
-        for player in spectators:
-            specList.append(index_from_userid(player.userid))
-        return specList
+        if len(spec_list) == 1:
+            return spec_list[0]
+
+        if len(spec_list) == 2:
+            return f"{spec_list[0]} & {spec_list[1]}"
+
+        last = spec_list.pop()
+        return ", ".join(str(spectator) for spectator in spec_list) + " & " + last
+
+    if format_type == "count":
+        return str(len(spec_list))
+
+    for player in spectators:
+        spec_list.append(index_from_userid(player.userid))
+    return spec_list
 
 
 def get_players():
+    """Get a list of currently connected players."""
     players = []
     for p in PlayerIter():
         if is_player(p):
@@ -54,6 +69,7 @@ def get_players():
 
 
 def get_player_indices():
+    """Get a list of currently connected players' indices."""
     indices = []
     for p in PlayerIter():
         if is_player(p):
@@ -62,6 +78,7 @@ def get_player_indices():
 
 
 def get_country(ip):
+    """Get country from ip address."""
     name = "United States"
     code = "US"
 

@@ -1,12 +1,20 @@
+"""Module for maps."""
+
+# =============================================================================
+# >> IMPORTS
+# =============================================================================
+# Python Imports
 from threading import Thread
 from engines.server import server
 
+# Source.Python Imports
 from mathlib import Vector
 
+# Custom Imports
 from .segment import Segment
 from .checkpoint import Checkpoint
 from ..zones.zone import Zone
-from ..players.state import Run_State, Player_Class, Timer_Mode
+from ..players.state import RunState, PlayerClass, TimerMode
 from ..chat.messages import (
     message_map_record_set,
     message_map_record,
@@ -25,10 +33,16 @@ from ..api.zones import map_zones
 from ..timer import timer
 
 
+# =============================================================================
+# >> MAP CLASS
+# =============================================================================
 class Map(Segment):
+    """Class for holding map info and zones."""
+
     def __init__(
         self, id_, name, stier=0, dtier=0, records={"soldier": None, "demoman": None}
     ):
+        """Create a new map."""
         super().__init__(stier, dtier)
         self.id_ = id_
         self.name = name
@@ -38,6 +52,8 @@ class Map(Segment):
 
     @staticmethod
     def get_map():
+        """Get the current map from the api."""
+
         # check if current map exists in api
         print(f"[jtimer] Getting map info for '{server.map_name}'")
         map_info, response = map_info_name(server.map_name)
@@ -92,19 +108,22 @@ class Map(Segment):
                 print(f"[jtimer] Loaded zones for '{server.map_name}'!")
                 timer.Timer.instance().current_map = map_
 
-
     def on_enter_start(self, player):
-        if player.state.timer_mode == Timer_Mode.MAP:
+        """Called when entering the map start zone."""
+
+        if player.state.timer_mode == TimerMode.MAP:
             # reset state when entering start again in map mode
-            if player.state.map_state != Run_State.START:
+            if player.state.map_state != RunState.START:
                 print("entered map > setting state to start")
                 player.state.reset()
-                player.state.map_state = Run_State.START
+                player.state.map_state = RunState.START
 
     def on_leave_start(self, player):
+        """Called when leaving the map start zone."""
+
         if (
-            player.state.map_state == Run_State.START
-            and player.state.timer_mode == Timer_Mode.MAP
+            player.state.map_state == RunState.START
+            and player.state.timer_mode == TimerMode.MAP
         ):
 
             # start run
@@ -117,14 +136,16 @@ class Map(Segment):
             print(f"left start, subtick: {subtick}")
             start_time = float(server.tick - 1 + subtick)
 
-            player.state.map_state = Run_State.RUN
+            player.state.map_state = RunState.RUN
             player.state.map[0] = self
             player.state.map[1] = start_time
 
     def on_enter_end(self, player):
+        """Called when entering the map end zone."""
+
         if (
-            player.state.map_state == Run_State.RUN
-            and player.state.timer_mode == Timer_Mode.MAP
+            player.state.map_state == RunState.RUN
+            and player.state.timer_mode == TimerMode.MAP
         ):
             # verify we hit all checkpoints
             if len(player.state.checkpoints) != len(player.state.map[0].checkpoints):
@@ -140,7 +161,7 @@ class Map(Segment):
                 message_checkpoint_missed.send(
                     player.index, plural=plural, checkpoints=str(missed)[1:-1]
                 )
-                player.state.map_state = Run_State.NONE
+                player.state.map_state = RunState.NONE
                 return
 
             # finish run
@@ -154,19 +175,21 @@ class Map(Segment):
             end_time = float(server.tick - 1 + subtick)
 
             player.state.map[2] = end_time
-            player.state.map_state = Run_State.END
+            player.state.map_state = RunState.END
 
             thread = MapTimeUploader(self.id_, player, self.upload_map_time_callback)
             thread.start()
 
     def upload_map_time_callback(self, result, player):
+        """Callback for uploading map times."""
+
         if result is None:
             return
 
         class_string = None
-        if player.state.player_class == Player_Class.SOLDIER:
+        if player.state.player_class == PlayerClass.SOLDIER:
             class_string = "soldier"
-        elif player.state.player_class == Player_Class.DEMOMAN:
+        elif player.state.player_class == PlayerClass.DEMOMAN:
             class_string = "demoman"
 
         self.records = result["records"]
@@ -228,24 +251,26 @@ class Map(Segment):
             message_points_gain.send(player.index, points=result["points_gained"])
 
     def on_enter_checkpoint(self, player, checkpoint):
+        """Called when entering a map checkpoint."""
+
         if (
-            player.state.map_state == Run_State.RUN
-            and player.state.timer_mode == Timer_Mode.MAP
+            player.state.map_state == RunState.RUN
+            and player.state.timer_mode == TimerMode.MAP
         ):
             for cp in player.state.checkpoints:
                 if cp[0] == checkpoint:
                     return
 
             # verify we hit the correct checkpoint
-            if len(player.state.checkpoints) == 0:
+            if not player.state.checkpoints:
                 # checkpoints are 1 indexed: check if the first one we hit is cp1
                 if checkpoint.index != 1:
-                    player.state.map_state = Run_State.NONE
+                    player.state.map_state = RunState.NONE
                     message_checkpoint_wrong_order.send(player.index)
                     return
             # we hit an incorrect checkpoint
             elif player.state.checkpoints[-1][0].index != checkpoint.index - 1:
-                player.state.map_state = Run_State.NONE
+                player.state.map_state = RunState.NONE
                 message_checkpoint_wrong_order.send(player.index)
                 return
 
@@ -260,9 +285,9 @@ class Map(Segment):
             player.state.checkpoints.append((checkpoint, enter_time))
 
             class_string = None
-            if player.state.player_class == Player_Class.SOLDIER:
+            if player.state.player_class == PlayerClass.SOLDIER:
                 class_string = "soldier"
-            elif player.state.player_class == Player_Class.DEMOMAN:
+            elif player.state.player_class == PlayerClass.DEMOMAN:
                 class_string = "demoman"
 
             relative_enter_time = enter_time - player.state.map[1]
@@ -290,17 +315,21 @@ class Map(Segment):
 
 
 class MapTimeUploader(Thread):
+    """Class for uploading map on a separate thread with a callback."""
+
     def __init__(self, map_id, player, callback=None):
+        """Create a new thread with callback."""
         Thread.__init__(self)
         self.map_id = map_id
         self.player = player
         self.callback = callback
 
     def run(self):
+        """Run thread."""
         player_class = None
-        if self.player.state.player_class == Player_Class.SOLDIER:
+        if self.player.state.player_class == PlayerClass.SOLDIER:
             player_class = 2
-        elif self.player.state.player_class == Player_Class.DEMOMAN:
+        elif self.player.state.player_class == PlayerClass.DEMOMAN:
             player_class = 4
 
         checkpoints = []

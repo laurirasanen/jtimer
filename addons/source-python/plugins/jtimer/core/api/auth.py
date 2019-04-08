@@ -1,10 +1,22 @@
-import requests
-import time
-from threading import Timer
+"""Module for authenticating with the api."""
 
+# =============================================================================
+# >> IMPORTS
+# =============================================================================
+# Python Imports
+from threading import Timer
+import time
+import requests
+
+# Custom Imports
 from ..config import API_CFG
 from ..helpers.utils import get_players
+from ..players.player import Player
 
+
+# =============================================================================
+# >> GLOBAL VARIABLES
+# =============================================================================
 # tokens
 _access_token = None
 _refresh_token = None
@@ -19,13 +31,15 @@ _refresh_timer = None
 # how many seconds before expiry time to refresh tokens
 _refresh_time_gap = 60
 
-
+# =============================================================================
+# >> FUNCTIONS
+# =============================================================================
 def on_load():
     """Call this on plugin load to authenticate with the api."""
 
     if API_CFG["authenticate"]:
         authenticate()
-    
+
     for player in get_players():
         Player.add_player(player.playerinfo, player.index)
 
@@ -48,7 +62,8 @@ def on_unload():
 
 
 def authenticate():
-    """Authenticate with the api."""
+    """Authenticate with the api.
+    https://jtimer-api.readthedocs.io/en/latest/#post--token-auth"""
 
     # make sure we're using https
     assert API_CFG["host"].startswith("https://")
@@ -113,7 +128,8 @@ def authenticate():
 
 
 def refresh_access():
-    """Use refresh token to get new access token."""
+    """Use refresh token to get new access token.
+    https://jtimer-api.readthedocs.io/en/latest/#post--token-refresh"""
 
     # make sure we're using https
     assert API_CFG["host"].startswith("https://")
@@ -185,7 +201,9 @@ def future_auth():
 
 
 def revoke_token(token, token_type):
-    """Revoke a token."""
+    """Revoke a token.
+    https://jtimer-api.readthedocs.io/en/latest/#post--token-revoke-access
+    https://jtimer-api.readthedocs.io/en/latest/#post--token-revoke-refresh"""
     assert token_type in ["access", "refresh"]
 
     # make sure we're using https
@@ -205,4 +223,5 @@ def revoke_token(token, token_type):
 
 
 def get_token():
+    """Return access token."""
     return _access_token

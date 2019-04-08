@@ -1,15 +1,27 @@
+"""Module for players related api functionality."""
+
+# =============================================================================
+# >> IMPORTS
+# =============================================================================
+# Python Imports
 import json
 import requests
 
+# Custom Imports
 from ..config import API_CFG
-from .auth import get_token
+from ..api import auth
 
 
-def search_player(playerid=None, steamid=None, name=None):
+# =============================================================================
+# >> FUNCTIONS
+# =============================================================================
+def search_player(player_id=None, steam_id=None, name=None):
+    """Search for a player by player_id, steam_id or name.
+    https://jtimer-api.readthedocs.io/en/latest/#get--players-search"""
     player = None
     r = requests.get(
         API_CFG["host"] + "/players/search",
-        params={"playerid": playerid, "steamid": steamid, "name": name},
+        params={"player_id": player_id, "steam_id": steam_id, "name": name},
     )
     if r.status_code == 200:
         player = r.json()
@@ -17,6 +29,8 @@ def search_player(playerid=None, steamid=None, name=None):
 
 
 def list_players(start=1, limit=50):
+    """Get a list of players.
+    https://jtimer-api.readthedocs.io/en/latest/#get--players-list"""
     players = []
     r = requests.get(
         API_CFG["host"] + "/players/list", params={"start": start, "limit": limit}
@@ -27,11 +41,12 @@ def list_players(start=1, limit=50):
 
 
 def add_player(steam_id, username, country):
-    """Add a player to the api or update an existing one."""
+    """Add a player to the api or update an existing one.
+    https://jtimer-api.readthedocs.io/en/latest/#post--players-add"""
     if not API_CFG["authenticate"]:
         return None
 
-    access_token = get_token()
+    access_token = auth.get_token()
     if access_token is None:
         return None
 

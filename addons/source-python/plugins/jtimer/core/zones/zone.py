@@ -1,16 +1,29 @@
-import mathlib
-import math
+"""Module for Zones."""
+
+# =============================================================================
+# >> IMPORTS
+# =============================================================================
+# Source.Python Imports
 from engines.server import server
-from mathlib import Vector
+from engines.precache import Model
+from mathlib import Vector, NULL_VECTOR
 from effects import box
 from filters.recipients import RecipientFilter
-from engines.precache import Model
 
+# =============================================================================
+# >> GLOBAL VARIABLES
+# =============================================================================
 model = Model("sprites/laser.vmt")
 
 
+# =============================================================================
+# >> ZONE CLASS
+# =============================================================================
 class Zone:
-    def __init__(self, p1=mathlib.NULL_VECTOR, p2=mathlib.NULL_VECTOR, orientation=0):
+    """Class for Segment Zones."""
+
+    def __init__(self, p1=NULL_VECTOR, p2=NULL_VECTOR, orientation=0):
+        """Create a new Zone."""
         self.center = (p1 + p2) / 2
         # set half-widths
         self.extents = Vector(*[abs(x) for x in self.center - p2])
@@ -20,8 +33,9 @@ class Zone:
         self.orientation = orientation
 
     def is_overlapping(self, other_center, other_extents):
-        """AABB-AABB test
-        (check if distance between centers is less than extents of both objects)"""
+        """AABB-AABB test. Returns True on overlap."""
+
+        # Check if distance between centers is less than extents of both objects
         x = abs(self.center[0] - other_center[0]) <= (
             self.extents[0] + other_extents[0]
         )
@@ -35,7 +49,7 @@ class Zone:
         return x and y and z
 
     def time_to_zone_edge(self, other_center, other_extents, velocity, position_delta):
-        """sub-tick time until player bounding box will leave the zone"""
+        """Floating point time until player bounding box will leave the zone-"""
 
         # max distance travelled in a tick ( sqrt(sqrt(3500^2 + 3500^2) + 3500^2) )
         dist = 91
@@ -104,7 +118,7 @@ class Zone:
 
     def closest_corner(self, other_center, other_extents):
         """get closest corner of other box to ours"""
-        corner = mathlib.NULL_VECTOR
+        corner = NULL_VECTOR
 
         for i in range(0, 3):
             if self.center[i] < other_center[i]:
@@ -136,6 +150,7 @@ class Zone:
         self.extents = self.bounds[1] - self.center
 
     def draw(self):
+        """Draw this zone to all players."""
         box(
             RecipientFilter(),
             self.bounds[0],

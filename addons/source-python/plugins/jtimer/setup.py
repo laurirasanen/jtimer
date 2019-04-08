@@ -1,5 +1,9 @@
 """Setup script for installing jtimer requirements."""
 
+# =============================================================================
+# >> IMPORTS
+# =============================================================================
+# Python Imports
 import sys
 import platform
 from pip._internal import main as pipmain

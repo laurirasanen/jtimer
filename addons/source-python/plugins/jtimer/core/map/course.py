@@ -1,27 +1,40 @@
+"""Module for courses."""
+
+# =============================================================================
+# >> IMPORTS
+# =============================================================================
+# Source.Python Imports
 from engines.server import server
 
+# Custom Imports
 from .segment import Segment
-from ..players.state import Run_State
-from ..players.state import Timer_Mode
+from ..players.state import RunState
+from ..players.state import TimerMode
 
 
+# =============================================================================
+# >> COURSE CLASS
+# =============================================================================
 class Course(Segment):
     def __init__(self, tier, course_index):
+        """Create a new course."""
         super().__init__(tier)
         self.index = course_index
 
     def on_enter_start(self, player):
-        if player.state.timer_mode == Timer_Mode.COURSE:
-            if player.state.course_state != Run_State.START:
+        """Called when entering the course start zone."""
+
+        if player.state.timer_mode == TimerMode.COURSE:
+            if player.state.course_state != RunState.START:
                 # reset state when entering start again in course mode
                 player.state.reset()
-                player.state.course_state = Run_State.START
+                player.state.course_state = RunState.START
 
-        elif player.state.timer_mode == Timer_Mode.MAP:
+        elif player.state.timer_mode == TimerMode.MAP:
             if player.state.course_index == self.index - 1:
                 # coming from previous course
                 player.state.course_index = self.index
-                player.state.course_state = Run_State.START
+                player.state.course_state = RunState.START
 
                 # TODO:
                 # course enter time checkpoint
@@ -35,14 +48,16 @@ class Course(Segment):
                 # TODO:
                 # print message to player
                 player.state.reset()
-                player.timer_mode = Timer_Mode.NONE
+                player.timer_mode = TimerMode.NONE
 
     def on_leave_start(self, player):
+        """Called when leaving the course start zone."""
+
         if (
-            player.state.course_state == Run_State.START
+            player.state.course_state == RunState.START
             and (
-                player.state.timer_mode == Timer_Mode.MAP
-                or player.state.timer_mode == Timer_Mode.COURSE
+                player.state.timer_mode == TimerMode.MAP
+                or player.state.timer_mode == TimerMode.COURSE
             )
             and player.state.course_index == self.index
         ):
@@ -56,18 +71,20 @@ class Course(Segment):
             )
             start_time = float(server.tick - 1 + subtick)
 
-            player.state.course_state = Run_State.RUN
+            player.state.course_state = RunState.RUN
             player.state.courses.append((self, start_time))
 
             # TODO:
             # course start time checkpoint?
 
     def on_enter_end(self, player):
+        """Called when entering the course end zone."""
+
         if (
-            player.state.course_state == Run_State.RUN
+            player.state.course_state == RunState.RUN
             and (
-                player.state.timer_mode == Timer_Mode.MAP
-                or player.state.timer_mode == Timer_Mode.COURSE
+                player.state.timer_mode == TimerMode.MAP
+                or player.state.timer_mode == TimerMode.COURSE
             )
             and player.state.course_index == self.index
         ):
@@ -84,13 +101,15 @@ class Course(Segment):
             for c in player.state.courses:
                 if c[0] == self:
                     c[2] = end_time
-            player.state.course_state = Run_State.END
+            player.state.course_state = RunState.END
 
     def on_enter_checkpoint(self, player, checkpoint):
+        """Called when entering a course checkpoint."""
+
         # only print course cps in course mode
         if (
-            player.state.course_state == Run_State.RUN
-            and player.state.timer_mode == Timer_Mode.COURSE
+            player.state.course_state == RunState.RUN
+            and player.state.timer_mode == TimerMode.COURSE
         ):
 
             # check if already entered
