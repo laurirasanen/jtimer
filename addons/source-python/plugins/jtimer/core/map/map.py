@@ -1,7 +1,11 @@
 from threading import Thread
 from engines.server import server
 
+from mathlib import Vector
+
 from .segment import Segment
+from .checkpoint import Checkpoint
+from ..zones.zone import Zone
 from ..players.state import Run_State, Player_Class, Timer_Mode
 from ..chat.messages import (
     message_map_record_set,
@@ -16,6 +20,8 @@ from ..chat.messages import (
 )
 from ..helpers.converts import ticks_to_timestamp
 from ..api.times import add_map_time
+from ..api.maps import map_info_name
+from ..api.zones import map_zones
 from ..timer import timer
 
 
@@ -29,6 +35,63 @@ class Map(Segment):
         self.courses = []
         self.bonuses = []
         self.records = records
+
+    @staticmethod
+    def get_map():
+        # check if current map exists in api
+        print(f"[jtimer] Getting map info for '{server.map_name}'")
+        map_info, response = map_info_name(server.map_name)
+
+        if map_info is None:
+            print(f"[jtimer] Couldn't get map info for '{server.map_name}'.")
+            if response.status_code < 500:
+                print(f"api response: {response.status_code}\n{response.json()}")
+            else:
+                print(f"api response: {response.status_code}")
+
+        else:
+            print(f"[jtimer] Loaded map info for '{server.map_name}'!")
+            map_ = Map(
+                map_info["id"],
+                map_info["name"],
+                map_info["tiers"]["soldier"],
+                map_info["tiers"]["demoman"],
+                map_info["records"],
+            )
+
+            zones, response = map_zones(map_info["id"])
+
+            if zones is None:
+                print(f"[jtimer] Couldn't get map zones for '{server.map_name}'.")
+                if response.status_code < 500:
+                    print(f"api response: {response.status_code}\n{response.json()}")
+                else:
+                    print(f"api response: {response.status_code}")
+
+            else:
+                for z in zones:
+                    if z["zone_type"] == "start":
+                        p1 = Vector(z["p1"][0], z["p1"][1], z["p1"][2])
+                        p2 = Vector(z["p2"][0], z["p2"][1], z["p2"][2])
+                        map_.add_start_zone(Zone(p1, p2, z["orientation"]))
+
+                    elif z["zone_type"] == "end":
+                        p1 = Vector(z["p1"][0], z["p1"][1], z["p1"][2])
+                        p2 = Vector(z["p2"][0], z["p2"][1], z["p2"][2])
+                        map_.add_end_zone(Zone(p1, p2))
+
+                    elif z["zone_type"] == "cp":
+                        p1 = Vector(
+                            z["zone"]["p1"][0], z["zone"]["p1"][1], z["zone"]["p1"][2]
+                        )
+                        p2 = Vector(
+                            z["zone"]["p2"][0], z["zone"]["p2"][1], z["zone"]["p2"][2]
+                        )
+                        map_.add_checkpoint(Checkpoint(z["cp_index"], p1, p2))
+
+                print(f"[jtimer] Loaded zones for '{server.map_name}'!")
+                timer.Timer.instance().current_map = map_
+
 
     def on_enter_start(self, player):
         if player.state.timer_mode == Timer_Mode.MAP:

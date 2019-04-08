@@ -33,6 +33,8 @@ def draw_rightHud(player, current_map, specIndexes):
             currentClass = "soldier"
         elif player.state.player_class == state.Player_Class.DEMOMAN:
             currentClass = "demoman"
+        else:
+            return
 
         if current_map.records[currentClass] is not None:
             wr = (
