@@ -1,4 +1,5 @@
 # jtimer
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
 jtimer is a [Source.Python](https://github.com/Source-Python-Dev-Team/Source.Python) speedrun timer plugin for TF2. Other Source games might work but have not been tested. jtimer is fully open source and welcomes contributors.
 
 # Features
@@ -29,3 +30,15 @@ jtimer uses [Black](https://github.com/ambv/black) for code formatting. Contribu
 [Yoeri Poels](https://github.com/yoeripoels)  
 [Lauri Räsänen](https://github.com/laurirasanen)  
 [lcorb](https://github.com/lcorb)
+
+## Contributors
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore -->
+<table><tr><td align="center"><a href="https://github.com/yoeripoels"><img src="https://avatars0.githubusercontent.com/u/23634707?v=4" width="100px;" alt="Yoeri Poels"/><br /><sub><b>Yoeri Poels</b></sub></a><br /><a href="https://github.com/occasionally-cool/jtimer/commits?author=yoeripoels" title="Code">💻</a></td></tr></table>
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
