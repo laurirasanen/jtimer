@@ -14,8 +14,9 @@ from listeners import (
 )
 from commands.typed import TypedSayCommand
 from commands import CommandReturn
-from players.helpers import playerinfo_from_index, address_from_playerinfo
+from players.helpers import playerinfo_from_index, address_from_playerinfo, index_from_playerinfo
 from players import PlayerInfo
+from players.entity import Player as SourcePlayer
 from filters.players import PlayerIter
 from events import Event
 from mathlib import Vector
@@ -37,7 +38,7 @@ from .core.zones.zone import Zone
 from .core.api.maps import map_info_name
 from .core.api.zones import map_zones
 from .core.api.auth import on_load as auth_on_load, on_unload as auth_on_unload
-from .core.api.players import add_player
+from .core.api.players import add_player as api_add_player
 from .core.hud.radio import show_map_menu
 
 # =============
@@ -122,20 +123,7 @@ def get_map():
 def get_players():
     for p in PlayerIter():
         if not p.is_fake_client() and not p.is_hltv() and not p.is_bot():
-            api_player = add_player(
-                p.raw_steamid.to_steamid2(), p.playerinfo.name, "FI"
-            )
-            player = None
-            if api_player is not None:
-                player = Player(api_player["id"], p.playerinfo, p.index)
-            else:
-                player = Player(-1, p.playerinfo, p.index)
-
-            if not p.playerinfo.is_dead():
-                player.state.player_class = Player_Class(p.player_class)
-            Timer.instance().add_player(player)
-            if not p.playerinfo.is_dead:
-                player_start(player)
+            add_player(p.playerinfo, p.index)
 
 
 def player_start(player):
@@ -161,11 +149,11 @@ def player_start(player):
     player.teleport_to_start()
 
 
-def api_add_player(playerinfo, index):
+def add_player(playerinfo, index):
     ip = address_from_playerinfo(playerinfo).split(":")[0]
     country, code = get_country(ip)
 
-    api_player = add_player(
+    api_player = api_add_player(
         SteamID.parse(playerinfo.steamid).to_steamid2(), playerinfo.name, code
     )
     player = None
@@ -178,7 +166,12 @@ def api_add_player(playerinfo, index):
         get_player_indices(), name=playerinfo.name, country=country
     )
 
-    Timer.instance().add_player(player)
+    if not playerinfo.is_dead():
+        p = SourcePlayer(index_from_playerinfo(playerinfo))
+        player.state.player_class = Player_Class(p.player_class)
+        player_start(player)
+
+    Timer.instance().add_player(player)        
 
 
 @OnLevelInit
@@ -208,7 +201,7 @@ def on_tick():
 def on_client_active(index):
     playerinfo = playerinfo_from_index(index)
     if is_player(playerinfo):
-        Thread(target=api_add_player, args=(playerinfo, index)).start()
+        Thread(target=add_player, args=(playerinfo, index)).start()
     else:
         return
 
