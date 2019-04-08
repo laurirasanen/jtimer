@@ -1,5 +1,5 @@
 # jtimer
-[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors)  
 jtimer is a [Source.Python](https://github.com/Source-Python-Dev-Team/Source.Python) speedrun timer plugin for TF2. Other Source games might work but have not been tested. jtimer is fully open source and welcomes contributors.
 
 # Features
