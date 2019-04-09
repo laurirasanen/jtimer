@@ -4,6 +4,7 @@
 # >> IMPORTS
 # =============================================================================
 # Python Imports
+import os
 from threading import Thread
 
 # Source.Python Imports
@@ -20,6 +21,9 @@ from players.helpers import playerinfo_from_index
 from steam import SteamID
 from cvars import ConVar
 from engines.server import server
+from engines.sound import engine_sound
+from memory import DataType, Convention, get_object_pointer
+from memory.hooks import PreHook
 
 # Custom Imports
 from .timer.timer import Timer
@@ -29,6 +33,56 @@ from .players.player import Player
 from .map.map import Map
 from .players.state import PlayerClass
 
+# =============================================================================
+# >> GLOBAL VARIABLES
+# =============================================================================
+emit_sound_offset = 4 if os.name == "nt" else 5
+
+""" CEngineSoundServer::EmitSound(
+        IRecipientFilter&,
+        int,
+        int,
+        char const*,
+        float,
+        soundlevel_t,
+        int,
+        int,
+        int,
+        Vector const*,
+        Vector const*,
+        CUtlVector<Vector, CUtlMemory<Vector, int> >*,
+        bool,
+        float,
+        int
+    )"""
+
+EMIT_SOUND_FUNC = get_object_pointer(engine_sound).make_virtual_function(
+    emit_sound_offset,
+    Convention.THISCALL,
+    (
+        DataType.POINTER,  # this pointer
+        DataType.POINTER,
+        DataType.INT,
+        DataType.INT,
+        DataType.STRING,
+        DataType.FLOAT,
+        DataType.USHORT,
+        DataType.INT,
+        DataType.INT,
+        DataType.INT,
+        DataType.POINTER,
+        DataType.POINTER,
+        DataType.POINTER,
+        DataType.BOOL,
+        DataType.FLOAT,
+        DataType.INT,
+    ),
+    DataType.VOID,
+)
+
+blocked_sounds = ["items/regenerate.wav"]
+
+engine_sound.precache_sound("vo/null.wav")
 
 # =============================================================================
 # >> LISTENERS
@@ -118,3 +172,14 @@ def on_player_death(game_event):
     """Called when a player dies."""
     player = userid_to_player(game_event["userid"])
     player.state.reset()
+
+
+# =============================================================================
+# >> VIRTUAL FUNCTIONS
+# =============================================================================
+@PreHook(EMIT_SOUND_FUNC)
+def pre_emit_sound(args):
+    """Called before a sound is emitted."""
+
+    if args[4] in blocked_sounds:
+        args[4] = "vo/null.wav"
