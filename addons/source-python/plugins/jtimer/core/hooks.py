@@ -6,6 +6,7 @@
 # Python Imports
 import os
 from threading import Thread
+import re
 
 # Source.Python Imports
 from listeners import (
@@ -20,9 +21,10 @@ from events.hooks import PreEvent, EventAction
 from players.helpers import playerinfo_from_index
 from steam import SteamID
 from cvars import ConVar
-from engines.server import server
+from effects.base import TempEntity
+from engines.server import server, engine_server
 from engines.sound import engine_sound
-from memory import DataType, Convention, get_object_pointer
+from memory import DataType, Convention, get_object_pointer, get_virtual_function
 from memory.hooks import PreHook
 
 # Custom Imports
@@ -80,7 +82,14 @@ EMIT_SOUND_FUNC = get_object_pointer(engine_sound).make_virtual_function(
     DataType.VOID,
 )
 
-blocked_sounds = ["items/regenerate.wav"]
+blocked_sounds = [
+    "items/regenerate.*",
+    "vo/soldier_Pain.*",
+    "vo/demoman_Pain.*",
+    "player_pl_fallpain.*",
+]
+
+blocked_temp_entities = ["TFExplosion", "TFBlood"]
 
 engine_sound.precache_sound("vo/null.wav")
 
@@ -181,5 +190,19 @@ def on_player_death(game_event):
 def pre_emit_sound(args):
     """Called before a sound is emitted."""
 
-    if args[4] in blocked_sounds:
-        args[4] = "vo/null.wav"
+    sound_file = args[4]
+
+    for sound in blocked_sounds:
+        regex = re.compile(sound)
+        if re.match(regex, sound_file):
+            return 0
+
+
+@PreHook(get_virtual_function(engine_server, "PlaybackTempEntity"))
+def pre_playback_temp_entity(stack_data):
+    """Called before a temp entity is created."""
+
+    te = TempEntity(stack_data[3])
+
+    if te.name in blocked_temp_entities:
+        return 0
