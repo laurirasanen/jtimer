@@ -4,9 +4,11 @@
 # >> IMPORTS
 # =============================================================================
 # Python Imports
+from IPy import IP
 from geolite2 import geolite2
 
 # Source.Python Imports
+from core import get_public_ip
 from filters.players import PlayerIter
 from players.entity import Player
 from players import PlayerInfo
@@ -79,6 +81,11 @@ def get_player_indices():
 
 def get_country(ip):
     """Get country from ip address."""
+
+    # Change private addresses to server's public address
+    if IP(ip).iptype() == "PRIVATE":
+        ip = get_public_ip()
+
     name = "United States"
     code = "US"
 
