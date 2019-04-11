@@ -112,7 +112,7 @@ class Player:
         else:
             # Don't try to update or add player to api
             api_player = api_search_player(
-                steamid=SteamID.parse(playerinfo.steamid).to_steamid2()
+                steam_id=SteamID.parse(playerinfo.steamid).to_steamid2()
             )
 
         player = None
