@@ -43,7 +43,7 @@ class Player:
         self.has_start = False
         self.gag = False
         self.mute = False
-        self.commandRestricted = False
+        self.command_restricted = False
 
     def start(self):
         """Reset player state and teleport to the start."""

@@ -34,6 +34,7 @@ from .helpers.converts import userid_to_player
 from .players.player import Player
 from .map.map import Map
 from .players.state import PlayerClass
+from .commands.clientcommands import CommandHandler
 
 # =============================================================================
 # >> GLOBAL VARIABLES
@@ -183,6 +184,21 @@ def on_player_death(game_event):
     player.state.reset()
 
 
+@Event("player_say")
+def on_say(game_event):
+    """Block gagged players from chatting."""
+    player = userid_to_player(game_event["userid"])
+    message = game_event["text"]
+
+    if player.gag:
+        return EventAction.BLOCK
+
+    # Check if command
+    if message[0] in CommandHandler.instance().prefix:
+        CommandHandler.instance().checkCommand(message, player)
+        return EventAction.STOPBROADCAST
+
+
 # =============================================================================
 # >> VIRTUAL FUNCTIONS
 # =============================================================================
@@ -199,10 +215,10 @@ def pre_emit_sound(args):
 
 
 @PreHook(get_virtual_function(engine_server, "PlaybackTempEntity"))
-def pre_playback_temp_entity(stack_data):
+def pre_playback_temp_entity(args):
     """Called before a temp entity is created."""
 
-    te = TempEntity(stack_data[3])
+    te = TempEntity(args[3])
 
     if te.name in blocked_temp_entities:
         return 0

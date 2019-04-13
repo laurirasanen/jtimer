@@ -23,10 +23,6 @@ from messages.colors.saytext2 import (
 )
 from events import Event
 
-from ..translations import chat_strings
-from ..commands.player.clientcommands import CommandController
-
-
 # Custom Imports
 from ..translations import chat_strings
 
@@ -55,19 +51,6 @@ message_no_match = SayText2(chat_strings["no match"])
 
 message_player_join = SayText2(chat_strings["player join"])
 message_player_join_unranked = SayText2(chat_strings["player join unranked"])
-
-__all__ = (
-    message_timer_enable,
-    message_timer_disable,
-    message_checkpoint_enter,
-    message_checkpoint_enter_no_split,
-    message_map_finish,
-    message_map_finish_no_split,
-    message_map_improvement,
-    message_map_record,
-    message_map_record_set,
-    message_points_gain,
-)
 
 color_formats = {
     "blue": BLUE,
@@ -129,19 +112,3 @@ for saytext in __all__:
 
         # Format colors
         saytext.message[key] = saytext.message[key].format_map(SafeDict(color_formats))
-
-class ChatBaron:
-    def __init__(self):
-        self.hideChatPlayers = {}
-
-    @Event("player_say")
-    def onSay(self, event):
-        player = userid_to_player(game_event["userid"])
-        message = game_event["text"]
-
-        if player.gag:
-            return EventAction.BLOCK
-
-        if message[0] in CommandController.prefix:
-            CommandController.checkCommand(message, player)
-            return EventAction.STOPBROADCAST
