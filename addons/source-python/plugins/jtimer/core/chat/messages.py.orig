@@ -1,9 +1,12 @@
+<<<<<<< HEAD
 """Module for formatting and holding chat messages."""
 
 # =============================================================================
 # >> IMPORTS
 # =============================================================================
 # Source.Python Imports
+=======
+>>>>>>> scotchBranch
 from messages.base import SayText2
 from messages.colors.saytext2 import (
     BLUE,
@@ -55,19 +58,6 @@ message_no_match = SayText2(chat_strings["no match"])
 
 message_player_join = SayText2(chat_strings["player join"])
 message_player_join_unranked = SayText2(chat_strings["player join unranked"])
-
-__all__ = (
-    message_timer_enable,
-    message_timer_disable,
-    message_checkpoint_enter,
-    message_checkpoint_enter_no_split,
-    message_map_finish,
-    message_map_finish_no_split,
-    message_map_improvement,
-    message_map_record,
-    message_map_record_set,
-    message_points_gain,
-)
 
 color_formats = {
     "blue": BLUE,

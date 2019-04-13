@@ -41,9 +41,6 @@ class Player:
         self.name = playerinfo.name
         self.state = State(self)
         self.has_start = False
-        self.gag = False
-        self.mute = False
-        self.commandRestricted = False
 
     def start(self):
         """Reset player state and teleport to the start."""
@@ -62,6 +59,7 @@ class Player:
                 # map not zoned
                 self.state.timer_mode = TimerMode.NONE
 
+<<<<<<< HEAD
         else:
             # unsupported class, disable timer
             self.state.timer_mode = TimerMode.NONE
@@ -90,6 +88,15 @@ class Player:
         Return True on success"""
         if Timer.instance().current_map and Timer.instance().current_map.start_zone:
             start_zone = Timer.instance().current_map.start_zone
+=======
+        self.gag = False
+        self.mute = False
+        self.commandRestricted = False
+
+    def teleport_to_start(self):
+        if self.state.timer_mode == Timer_Mode.MAP:
+            start_zone = timer.current_map.start_zone
+>>>>>>> scotchBranch
             start = Vector(
                 start_zone.center[0],
                 start_zone.center[1],
