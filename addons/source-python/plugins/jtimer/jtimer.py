@@ -17,6 +17,7 @@ from .core.map.map import Map
 from .core.api.auth import on_load as auth_on_load, on_unload as auth_on_unload
 from .core.hud.radio import show_map_menu
 from .core.hooks import *
+from .core.chat.messages import message_hidechat_on, message_hidechat_off
 
 # =============================================================================
 # >> FUNCTIONS
@@ -68,5 +69,21 @@ def on_restart(command):
     if is_player(playerinfo):
         player = steamid_to_player(SteamID.parse(playerinfo.steamid).to_steamid2())
         player.teleport_to_start()
+
+    return CommandReturn.BLOCK
+
+
+@TypedSayCommand("/hidechat")
+def on_timer(command):
+    """Called when player uses /hidechat command."""
+    playerinfo = playerinfo_from_index(command.index)
+
+    if is_player(playerinfo):
+        player = steamid_to_player(SteamID.parse(playerinfo.steamid).to_steamid2())
+        player.hidechat = not player.hidechat
+        if player.hidechat:
+            message_hidechat_on.send(player.index)
+        else:
+            message_hidechat_off.send(player.index)
 
     return CommandReturn.BLOCK

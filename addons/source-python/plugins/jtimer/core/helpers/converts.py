@@ -12,6 +12,7 @@ from engines.server import server
 
 # Custom Imports
 from ..timer import timer
+from .utils import get_players
 
 # =============================================================================
 # >> GLOBAL VARIABLES
@@ -42,6 +43,19 @@ def userid_to_source_player(userid):
         return player_instances.from_userid(userid)
     except ValueError:
         return None
+
+
+def index_to_source_player(index):
+    """Convert index to Source.Python player."""
+    for player in get_players():
+        if player.index == index:
+            return player
+
+
+def index_to_player(index):
+    source_player = index_to_source_player(index)
+    if source_player:
+        return steamid_to_player(source_player.raw_steamid.to_steamid2())
 
 
 def ticks_to_timestamp(ticks):

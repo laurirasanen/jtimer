@@ -26,15 +26,17 @@ from engines.server import server, engine_server
 from engines.sound import engine_sound
 from memory import DataType, Convention, get_object_pointer, get_virtual_function
 from memory.hooks import PreHook
+from messages.hooks import HookUserMessage
 
 # Custom Imports
 from .timer.timer import Timer
 from .helpers.utils import is_player, get_players
-from .helpers.converts import userid_to_player
+from .helpers.converts import userid_to_player, steamid_to_player, index_to_player
 from .players.player import Player
 from .map.map import Map
 from .players.state import PlayerClass
 from .commands.clientcommands import CommandHandler
+from .chat.messages import message_hidechat_send
 
 # =============================================================================
 # >> GLOBAL VARIABLES
@@ -184,21 +186,6 @@ def on_player_death(game_event):
     player.state.reset()
 
 
-@Event("player_say")
-def on_say(game_event):
-    """Block gagged players from chatting."""
-    player = userid_to_player(game_event["userid"])
-    message = game_event["text"]
-
-    if player.gag:
-        return EventAction.BLOCK
-
-    # Check if command
-    if message[0] in CommandHandler.instance().prefix:
-        CommandHandler.instance().checkCommand(message, player)
-        return EventAction.STOPBROADCAST
-
-
 # =============================================================================
 # >> VIRTUAL FUNCTIONS
 # =============================================================================
@@ -222,3 +209,41 @@ def pre_playback_temp_entity(args):
 
     if te.name in blocked_temp_entities:
         return 0
+
+
+# =============================================================================
+# >> USER MESSAGE HOOKS
+# =============================================================================
+@HookUserMessage("SayText2")
+def saytext2_hook(recipients, data):
+    """Hook SayText2 for to remove players with 
+    hidechat enabled from recipients."""
+
+    # Server
+    if data["index"] == 0:
+        return
+
+    recipients = list(recipients)
+
+    for p in get_players():
+        player = steamid_to_player(p.raw_steamid.to_steamid2())
+
+        if player.hidechat:
+            # Remove from recipients
+            recipients.remove(player.index)
+
+        if player.index == data["index"]:
+            # Don't allow sending messages if hidechat is on
+            if player.hidechat:
+                if data["index"] == player.index:
+                    data["message"] = message_hidechat_send.message[p.language[:2]]
+                    recipients = (player.index,)
+                    data["index"] = 0
+                    break
+
+            # Prevent gagged players from sending messages
+            if player.gag:
+                recipients = ()
+                break
+
+    recipients = tuple(recipients)

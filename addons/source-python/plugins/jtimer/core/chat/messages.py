@@ -52,6 +52,10 @@ message_no_match = SayText2(chat_strings["no match"])
 message_player_join = SayText2(chat_strings["player join"])
 message_player_join_unranked = SayText2(chat_strings["player join unranked"])
 
+message_hidechat_on = SayText2(chat_strings["hidechat on"])
+message_hidechat_off = SayText2(chat_strings["hidechat off"])
+message_hidechat_send = SayText2(chat_strings["hidechat send"])
+
 color_formats = {
     "blue": BLUE,
     "brightgreen": BRIGHT_GREEN,
@@ -89,6 +93,9 @@ __all__ = (
     message_no_match,
     message_player_join,
     message_player_join_unranked,
+    message_hidechat_on,
+    message_hidechat_off,
+    message_hidechat_send,
 )
 
 
