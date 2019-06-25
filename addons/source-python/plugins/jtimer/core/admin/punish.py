@@ -18,6 +18,7 @@ from ..helpers.search import find_player_with_name
 # =============================================================================
 class Admin(Player):
     """Admin class for storing permission flags and commands."""
+
     def __init__(self, player, flags):
         self.admin = player
         self.flags = flags

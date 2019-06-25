@@ -6,6 +6,9 @@
 # Python Imports
 from configparser import ConfigParser
 
+# Source.Python Imports
+from cvars import ConVar
+
 # Custom Imports
 from .constants.paths import CFG_PATH
 
@@ -31,3 +34,8 @@ except ValueError:
 if API_CFG["authenticate"]:
     assert "username" in API_CFG
     assert "password" in API_CFG
+
+# cvars
+CVAR_CFG = dict(PARSER.items("cvar"))
+for cvar in CVAR_CFG.keys():
+    c = ConVar(cvar).set_string(CVAR_CFG[cvar])

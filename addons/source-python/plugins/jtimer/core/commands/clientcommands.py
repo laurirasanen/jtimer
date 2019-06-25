@@ -6,6 +6,7 @@
 # =============================================================================
 class CommandHandler:
     """Class for validating and handling client commands."""
+
     __instance = None
 
     def instance():

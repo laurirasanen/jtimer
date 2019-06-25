@@ -1,3 +1,6 @@
+# vs code
+.vscode/
+
 # ignore source.python
 src
 logs

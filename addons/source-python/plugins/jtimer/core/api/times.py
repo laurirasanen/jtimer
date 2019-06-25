@@ -50,7 +50,7 @@ def add_map_time(map_id, player_id, player_class, start_time, end_time, checkpoi
         assert (
             cp_time is not None
             and isinstance(cp_time, float)
-            and end_time < cp_time < start_time
+            and start_time < cp_time < end_time
         )
 
     access_token = get_token()
