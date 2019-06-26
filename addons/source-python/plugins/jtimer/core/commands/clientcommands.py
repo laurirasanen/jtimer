@@ -19,8 +19,7 @@ class CommandHandler:
         if CommandHandler.__instance is not None:
             raise Exception("This class is a singleton, use .instance() access method.")
 
-        self.command_list = {}
-        self.no_prefix_commands = {}
+        self.command_list = []
         self.prefix = ["/", "!"]
 
         CommandHandler.__instance = self
@@ -30,59 +29,90 @@ class CommandHandler:
         name,
         callback,
         alias=[],
-        arg_count=0,
-        flags={},
-        allowed_states={},
+        args=[],
+        flags=[],
+        disallowed_states=[],
         description="",
         usage="",
         prefix_required=True,
         log=False,
-        visibility={},
+        visibility=0,
     ):
         """Register a new command."""
         command = Command(
             name,
             callback,
             alias,
-            arg_count,
+            args,
             flags,
-            allowed_states,
+            disallowed_states,
             description,
             usage,
             prefix_required,
             log,
             visibility,
         )
-        self.commandList.append(command)
+        self.command_list.append(command)
+        print(f"[jtimer] Registered command: '{command.name}'")
 
-    def execute_command(self, command, player, *args):
+    def execute_command(self, command, player, args):
         """Execute command if player has permissions."""
-        if len(args) < command.arg_count:
+
+        required_args = 0
+        for arg in command.args:
+            if arg.required:
+                required_args += 1
+
+        if len(args) < required_args:
             return "Usage: " + command.usage
+
+        for i in range(0, len(command.args)):
+            try:
+                arg = args[i]
+            except IndexError:
+                arg = None
+            if not command.args[i].validate(arg):
+                return (
+                    f"Invalid argument {arg}, must be type {command.args[i].arg_type}"
+                )
 
         if not player:
             return
 
-        if player.flags not in command.flags:
+        if command.flags and command.flags not in player.flags:
             return
 
-        # Not quite sure about this one yet
-        # if player.State
+        # if player.State in command.disallowed_states:
+        #    return "State not allowed"
 
-        command.callback()
+        command.callback(player, command)
 
     def check_command(self, message, player):
         # Message should be "<prefix><command> *args"
         message = message.split()
         command = message[0]
-        args = message.pop(0)
+        try:
+            args = message[1:]
+        except IndexError:
+            args = []
 
         if player.command_restricted:
             return
 
-        if command[0] in self.command_list:
-            command = self.command_list.get()
-            self.execute_command(command, player, args)
+        command = self.get_command(command)
+        if command is None:
+            return
+
+        return self.execute_command(command, player, args)
+
+    def get_command(self, message):
+        for cmd in self.command_list:
+            if cmd.name == message:
+                return cmd
+            for alias in cmd.alias:
+                if alias == message:
+                    return cmd
+        return None
 
 
 # =============================================================================
@@ -96,8 +126,9 @@ class Command:
         name,
         callback,
         alias,
+        args,
         flags,
-        allowed_states,
+        disallowed_states,
         description,
         usage,
         prefix_required,
@@ -109,10 +140,13 @@ class Command:
         self.alias = alias
 
         # To restrict commands based on level of access
-        self.admin_flags = flags
+        self.flags = flags
+
+        # Arguments
+        self.args = args
 
         # To restrict commands based on player state (timer on/off, certain modes, spectate etc.)
-        self.allowed_states = allowed_states
+        self.disallowed_states = disallowed_states
 
         # Response to incorrect command args
         self.usage = usage
@@ -128,3 +162,26 @@ class Command:
 
         # Who the response should be visible to (person who used it, admin, everyone)
         self.visibility = visibility
+
+
+# =============================================================================
+# >> ARGUMENT CLASS
+# =============================================================================
+class Argument:
+    """Class for defining and validating command arguments."""
+
+    def __init__(self, arg_type, required, default):
+        assert arg_type in [str, bool, int, float]
+        self.arg_type = arg_type
+        self.required = required
+        self.value = default
+
+    def validate(self, arg):
+        """Validate passed argument"""
+
+        try:
+            self.value = self.arg_type(arg)
+        except (ValueError, TypeError):
+            self.value = None
+
+        return not (self.value is None and self.required)

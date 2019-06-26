@@ -27,16 +27,23 @@ from engines.sound import engine_sound
 from memory import DataType, Convention, get_object_pointer, get_virtual_function
 from memory.hooks import PreHook
 from messages.hooks import HookUserMessage
+from filters.recipients import RecipientFilter
 
 # Custom Imports
 from .timer.timer import Timer
 from .helpers.utils import is_player, get_players
-from .helpers.converts import userid_to_player, steamid_to_player, index_to_player
+from .helpers.converts import (
+    userid_to_player,
+    steamid_to_player,
+    index_to_player,
+    index_to_source_player,
+)
 from .players.player import Player
 from .map.map import Map
 from .players.state import PlayerClass
 from .commands.clientcommands import CommandHandler
 from .chat.messages import message_hidechat_send
+from .commands.clientcommands import CommandHandler
 
 # =============================================================================
 # >> GLOBAL VARIABLES
@@ -215,35 +222,54 @@ def pre_playback_temp_entity(args):
 # >> USER MESSAGE HOOKS
 # =============================================================================
 @HookUserMessage("SayText2")
-def saytext2_hook(recipients, data):
-    """Hook SayText2 for to remove players with 
-    hidechat enabled from recipients."""
+def saytext2_hook(recipient, data):
+    """Hook SayText2 for commands and hidechat.
+    This is called once for every recipient."""
 
     # Server
     if data["index"] == 0:
         return
 
-    recipients = list(recipients)
+    # TODO:
+    # get index from RecipientList,
+    # this list cast is ugly
+    receiving_player = index_to_player(list(recipient)[0])
+    sending_player = index_to_player(data["index"])
 
-    for p in get_players():
-        player = steamid_to_player(p.raw_steamid.to_steamid2())
+    # Handle commands
+    if (
+        receiving_player
+        and sending_player
+        and receiving_player.index == sending_player.index
+        and len(data["param2"]) > 1
+        and data["param2"][0] in CommandHandler.instance().prefix
+    ):
+        recipient.update([])
+        command_response = CommandHandler.instance().check_command(
+            data["param2"][1:], index_to_player(sending_player.index)
+        )
+        if command_response:
+            data["message"] = command_response
+            data["index"] = 0
+            recipient.update([sending_player.index])
 
-        if player.hidechat:
-            # Remove from recipients
-            recipients.remove(player.index)
+    else:
+        # Handle hidechat and gag
+        if receiving_player and receiving_player.hidechat:
+            recipient.update([])
 
-        if player.index == data["index"]:
-            # Don't allow sending messages if hidechat is on
-            if player.hidechat:
-                if data["index"] == player.index:
-                    data["message"] = message_hidechat_send.message[p.language[:2]]
-                    recipients = (player.index,)
+        if sending_player:
+            if sending_player.hidechat:
+                # This hook is called once for every recipient,
+                # clear recipients if receiver is not sender
+                if receiving_player and receiving_player.index == sending_player.index:
+                    splayer = index_to_source_player(sending_player.index)
+                    data["message"] = message_hidechat_send.message[
+                        splayer.language[:2]
+                    ]
+                    recipient.update([sending_player.index])
                     data["index"] = 0
-                    break
-
-            # Prevent gagged players from sending messages
-            if player.gag:
-                recipients = ()
-                break
-
-    recipients = tuple(recipients)
+                else:
+                    recipient.update([])
+            elif sending_player.gag:
+                recipient.update([])

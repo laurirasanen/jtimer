@@ -69,16 +69,15 @@ class Timer:
                 source_player.velocity,
             )
 
-    def toggle_timer(self, index, steamid):
+    def toggle_timer(self, player):
         """Toggle player timer on and off."""
-        player = steamid_to_player(steamid)
         if player is not None:
             if player.state.timer_mode != TimerMode.NONE:
                 player.state.timer_mode = TimerMode.NONE
-                message_timer_disable.send(index)
+                message_timer_disable.send(player.index)
                 return
 
             player.state.timer_mode = TimerMode.MAP
-            message_timer_enable.send(index)
+            message_timer_enable.send(player.index)
             player.teleport_to_start()
             return
